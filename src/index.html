@@ -1,1 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1FB8CD">
+    <title>FinanceHub - Smart Financial Management</title>
+    
+    <link rel="manifest" href="manifest.json">
+    
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+</head>
 
+<body>
+    <a href="#main-content" class="sr-only focus:not-sr-only" tabindex="1">Skip to main content</a>
+    
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>Loading FinanceHub...</p>
+    </div>
+
+    <div class="theme-toggle" role="button" aria-label="Toggle theme">
+        <button id="themeToggle" class="btn btn--outline" aria-pressed="false">
+            <i class="fas fa-moon" aria-hidden="true"></i>
+            <span class="sr-only">Toggle dark mode</span>
+        </button>
+    </div>
+
+    <header class="header" role="banner">
+        <div class="container">
+            <div class="header__content">
+                <h1 class="header__title">
+                    <i class="fas fa-chart-line" aria-hidden="true"></i>
+                    FinanceHub
+                </h1>
+                <div class="role-selector" role="tablist" aria-label="User role selection">
+                    <button id="studentRole" class="role-btn active" role="tab" aria-selected="true">
+                        <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                        <span>Student</span>
+                    </button>
+                    <button id="professionalRole" class="role-btn" role="tab" aria-selected="false">
+                        <i class="fas fa-briefcase" aria-hidden="true"></i>
+                        <span>Professional</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav" role="navigation" aria-label="Main navigation">
+        <div class="container">
+            <div class="nav__content">
+                <button class="nav__item active" data-tab="dashboard" aria-pressed="true">
+                    <i class="fas fa-home" aria-hidden="true"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav__item" data-tab="transactions" aria-pressed="false">
+                    <i class="fas fa-exchange-alt" aria-hidden="true"></i>
+                    <span>Transactions</span>
+                </button>
+                <button class="nav__item" data-tab="budget" aria-pressed="false">
+                    <i class="fas fa-calculator" aria-hidden="true"></i>
+                    <span>Budget</span>
+                </button>
+                <button class="nav__item" data-tab="loans" aria-pressed="false">
+                    <i class="fas fa-university" aria-hidden="true"></i>
+                    <span>Loans/EMI</span>
+                </button>
+                <button class="nav__item" data-tab="investments" aria-pressed="false">
+                    <i class="fas fa-chart-pie" aria-hidden="true"></i>
+                    <span>Investments</span>
+                </button>
+                <button class="nav__item" data-tab="subscriptions" aria-pressed="false">
+                    <i class="fas fa-sync" aria-hidden="true"></i>
+                    <span>Subscriptions</span>
+                </button>
+                <button class="nav__item" data-tab="bills" aria-pressed="false">
+                    <i class="fas fa-file-invoice" aria-hidden="true"></i>
+                    <span>Bills</span>
+                </button>
+                <button class="nav__item" data-tab="split-expenses" aria-pressed="false">
+                    <i class="fas fa-users" aria-hidden="true"></i>
+                    <span>Split</span>
+                </button>
+                <button class="nav__item" data-tab="reports" aria-pressed="false">
+                    <i class="fas fa-chart-bar" aria-hidden="true"></i>
+                    <span>Reports</span>
+                </button>
+                <button class="nav__item" data-tab="ai-chat" aria-pressed="false">
+                    <i class="fas fa-robot" aria-hidden="true"></i>
+                    <span>AI Assistant</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main" id="main-content" role="main">
+        <div class="container">
+            <div id="dashboard" class="tab-content active">
+                <div class="dashboard">
+                    <div class="dashboard__row">
+                        <div class="metric-card" tabindex="0">
+                            <div class="metric-card__icon">
+                                <i class="fas fa-wallet" aria-hidden="true"></i>
+                            </div>
+                            <div class="metric-card__content">
+                                <h3>Total Balance</h3>
+                                <p class="metric-card__value" id="totalBalance" aria-live="polite">₹0</p>
+                                <span class="metric-card__change positive" aria-label="12.5% increase">+12.5%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card" tabindex="0">
+                            <div class="metric-card__icon">
+                                <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                            </div>
+                            <div class="metric-card__content">
+                                <h3>Monthly Income</h3>
+                                <p class="metric-card__value" id="monthlyIncome" aria-live="polite">₹0</p>
+                                <span class="metric-card__change positive">+8.2%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card" tabindex="0">
+                            <div class="metric-card__icon">
+                                <i class="fas fa-arrow-down" aria-hidden="true"></i>
+                            </div>
+                            <div class="metric-card__content">
+                                <h3>Monthly Expenses</h3>
+                                <p class="metric-card__value" id="monthlyExpenses" aria-live="polite">₹0</p>
+                                <span class="metric-card__change negative">-3.4%</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-card" tabindex="0">
+                            <div class="metric-card__icon">
+                                <i class="fas fa-piggy-bank" aria-hidden="true"></i>
+                            </div>
+                            <div class="metric-card__content">
+                                <h3>Savings Rate</h3>
+                                <p class="metric-card__value" id="savingsRate" aria-live="polite">0%</p>
+                                <span class="metric-card__change positive">+2.1%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard__row">
+                        <div class="chart-card">
+                            <div class="chart-card__header">
+                                <h3>Expense Breakdown</h3>
+                                <button class="btn btn--sm btn--outline" onclick="app.showTab('transactions')">View All</button>
+                            </div>
+                            <div class="chart-container" style="position: relative; height: 300px;">
+                                <canvas id="expenseChart" aria-label="Expense breakdown pie chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <div class="chart-card__header">
+                                <h3>Spending Trends</h3>
+                                <button class="btn btn--sm btn--outline" onclick="app.showTab('reports')">View All</button>
+                            </div>
+                            <div class="chart-container" style="position: relative; height: 300px;">
+                                <canvas id="trendChart" aria-label="Spending trends line chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard__row">
+                        <div class="goals-card">
+                            <div class="goals-card__header">
+                                <h3>Savings Goals</h3>
+                                <button class="btn btn--sm btn--primary" id="addGoalBtn">
+                                    <i class="fas fa-plus" aria-hidden="true"></i>
+                                    Add Goal
+                                </button>
+                            </div>
+                            <div class="goals-list" id="goalsList" aria-live="polite"></div>
+                        </div>
+                        
+                        <div class="achievements-card">
+                            <div class="achievements-card__header">
+                                <h3>Achievements</h3>
+                                <span class="achievement-score" id="achievementScore" aria-live="polite">0/15</span>
+                            </div>
+                            <div class="achievements-grid" id="achievementsGrid"></div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard__row">
+                        <div class="insights-card">
+                            <div class="insights-card__header">
+                                <h3><i class="fas fa-brain" aria-hidden="true"></i> Smart Insights</h3>
+                                <button class="btn btn--sm btn--outline" onclick="app.refreshInsights()">Refresh</button>
+                            </div>
+                            <div class="insights-list" id="aiInsights" aria-live="polite"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="transactions" class="tab-content">
+                <div class="transactions">
+                    <div class="transactions__header">
+                        <h2>Transactions</h2>
+                        <div class="transactions__actions">
+                            <button class="btn btn--outline" id="importTransactions">
+                                <i class="fas fa-upload" aria-hidden="true"></i>
+                                Import
+                            </button>
+                            <button class="btn btn--outline" id="exportTransactions">
+                                <i class="fas fa-download" aria-hidden="true"></i>
+                                Export
+                            </button>
+                            <button class="btn btn--primary" id="addTransactionBtn">
+                                <i class="fas fa-plus" aria-hidden="true"></i>
+                                Add Transaction
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="transactions__filters" role="search">
+                        <select id="typeFilter" class="form-control" aria-label="Filter by transaction type">
+                            <option value="all">All Types</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                        <select id="categoryFilter" class="form-control" aria-label="Filter by category">
+                            <option value="all">All Categories</option>
+                        </select>
+                        <input type="date" id="dateFromFilter" class="form-control" aria-label="Filter from date">
+                        <input type="date" id="dateToFilter" class="form-control" aria-label="Filter to date">
+                        <input type="search" id="searchTransactions" class="form-control" placeholder="Search transactions..." aria-label="Search transactions">
+                    </div>
+                    
+                    <div class="transactions__list" id="transactionsList" role="region" aria-label="Transaction list" aria-live="polite"></div>
+                    
+                    <div class="pagination" id="transactionsPagination" role="navigation" aria-label="Transaction pagination"></div>
+                </div>
+            </div>
+
+            <div id="budget" class="tab-content">
+                <div class="budget">
+                    <div class="budget__header">
+                        <h2>Budget Management</h2>
+                        <div class="budget__actions">
+                            <button class="btn btn--outline" id="resetBudgets">
+                                <i class="fas fa-redo" aria-hidden="true"></i>
+                                Reset All
+                            </button>
+                            <button class="btn btn--primary" id="addBudgetBtn">
+                                <i class="fas fa-plus" aria-hidden="true"></i>
+                                Add Budget
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="budget-overview">
+                        <div class="budget-summary-card">
+                            <h3>Total Budget</h3>
+                            <p id="totalBudget" aria-live="polite">₹0</p>
+                        </div>
+                        <div class="budget-summary-card">
+                            <h3>Total Spent</h3>
+                            <p id="totalSpent" aria-live="polite">₹0</p>
+                        </div>
+                        <div class="budget-summary-card">
+                            <h3>Remaining</h3>
+                            <p id="totalRemaining" aria-live="polite">₹0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="budget__grid" id="budgetGrid" role="region" aria-label="Budget categories"></div>
+                </div>
+            </div>
+
+            <div id="loans" class="tab-content">
+                <div class="loans">
+                    <div class="loans__header">
+                        <h2>Loans & EMI Tracker</h2>
+                        <button class="btn btn--primary" id="addLoanBtn">
+                            <i class="fas fa-plus" aria-hidden="true"></i>
+                            Add Loan
+                        </button>
+                    </div>
+                    
+                    <div class="loans__summary">
+                        <div class="loan-summary-card">
+                            <h3>Total Outstanding</h3>
+                            <p id="totalOutstanding" aria-live="polite">₹0</p>
+                        </div>
+                        <div class="loan-summary-card">
+                            <h3>Monthly EMIs</h3>
+                            <p id="totalEMI" aria-live="polite">₹0</p>
+                        </div>
+                        <div class="loan-summary-card">
+                            <h3>Interest Paid</h3>
+                            <p id="totalInterestPaid" aria-live="polite">₹0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="loans__list" id="loansList" role="region" aria-label="Loans list"></div>
+                </div>
+            </div>
+
+            <div id="investments" class="tab-content">
+                <div class="investments">
+                    <div class="investments__header">
+                        <h2>Investment Portfolio</h2>
+                        <div class="investments__actions">
+                            <button class="btn btn--outline" id="syncPrices">
+                                <i class="fas fa-sync" aria-hidden="true"></i>
+                                Sync Prices
+                            </button>
+                            <button class="btn btn--primary" id="addInvestmentBtn">
+                                <i class="fas fa-plus" aria-hidden="true"></i>
+                                Add Investment
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="investments__summary">
+                        <div class="investment-summary-card">
+                            <h3>Portfolio Value</h3>
+                            <p id="totalPortfolioValue" aria-live="polite">₹0</p>
+                        </div>
+                        <div class="investment-summary-card">
+                            <h3>Total Gains/Loss</h3>
+                            <p id="totalGains" class="positive" aria-live="polite">₹0</p>
+                        </div>
+                        <div class="investment-summary-card">
+                            <h3>Return %</h3>
+                            <p id="returnPercent" class="positive" aria-live="polite">0%</p>
+                        </div>
+                        <div class="investment-summary-card">
+                            <h3>Best Performer</h3>
+                            <p id="bestPerformer" aria-live="polite">-</p>
+                        </div>
+                    </div>
+                    
+                    <div class="investments__tabs">
+                        <button class="investment-tab active" data-type="all">All</button>
+                        <button class="investment-tab" data-type="stocks">Stocks</button>
+                        <button class="investment-tab" data-type="crypto">Crypto</button>
+                        <button class="investment-tab" data-type="mutual-funds">Mutual Funds</button>
+                        <button class="investment-tab" data-type="bonds">Bonds</button>
+                    </div>
+                    
+                    <div class="investments__list" id="investmentsList" role="region" aria-label="Investments list"></div>
+                </div>
+            </div>
+
+            <div id="subscriptions" class="tab-content">
+                <div class="subscriptions">
+                    <div class="subscriptions__header">
+                        <h2>Subscription Manager</h2>
+                        <div class="subscriptions__actions">
+                            <button class="btn btn--outline" id="cancelExpired">
+                                <i class="fas fa-times-circle" aria-hidden="true"></i>
+                                Cancel Expired
+                            </button>
+                            <button class="btn btn--primary" id="addSubscriptionBtn">
+                                <i class="fas fa-plus" aria-hidden="true"></i>
+                                Add Subscription
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="subscriptions__summary">
+                        <div class="subscription-summary-card">
+                            <h3>Monthly Cost</h3>
+                            <p id="monthlySubscriptionCost" aria-live="polite">₹0</p>
+                        </div>
+                        <div class="subscription-summary-card">
+                            <h3>Annual Cost</h3>
+                            <p id="annualSubscriptionCost" aria-live="polite">₹0</p>
+                        </div>
+                        <div class="subscription-summary-card">
+                            <h3>Active Subscriptions</h3>
+                            <p id="activeSubscriptions" aria-live="polite">0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="subscriptions__grid" id="subscriptionsGrid" role="region" aria-label="Subscriptions list"></div>
+                </div>
+            </div>
+
+            <div id="bills" class="tab-content">
+                <div class="bills">
+                    <div class="bills__header">
+                        <h2>Bill Reminders</h2>
+                        <button class="btn btn--primary" id="addBillBtn">
+                            <i class="fas fa-plus" aria-hidden="true"></i>
+                            Add Bill
+                        </button>
+                    </div>
+                    
+                    <div class="bills__upcoming">
+                        <h3>Upcoming Bills (Next 7 Days)</h3>
+                        <div class="upcoming-bills" id="upcomingBills" role="region" aria-label="Upcoming bills"></div>
+                    </div>
+                    
+                    <div class="bills__list" id="billsList" role="region" aria-label="All bills"></div>
+                </div>
+            </div>
+
+            <div id="split-expenses" class="tab-content">
+                <div class="split-expenses">
+                    <div class="split-expenses__header">
+                        <h2>Split Expenses</h2>
+                        <button class="btn btn--primary" id="addSplitExpenseBtn">
+                            <i class="fas fa-plus" aria-hidden="true"></i>
+                            Add Split Expense
+                        </button>
+                    </div>
+                    
+                    <div class="split-summary">
+                        <div class="split-summary-card">
+                            <h3>You Owe</h3>
+                            <p id="totalOwed" class="negative" aria-live="polite">₹0</p>
+                        </div>
+                        <div class="split-summary-card">
+                            <h3>Owed to You</h3>
+                            <p id="totalOwing" class="positive" aria-live="polite">₹0</p>
+                        </div>
+                        <div class="split-summary-card">
+                            <h3>Net Balance</h3>
+                            <p id="netBalance" aria-live="polite">₹0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="split-expenses__list" id="splitExpensesList" role="region" aria-label="Split expenses list"></div>
+                </div>
+            </div>
+
+            <div id="reports" class="tab-content">
+                <div class="reports">
+                    <div class="reports__header">
+                        <h2>Financial Reports</h2>
+                        <div class="reports__controls">
+                            <select id="reportPeriod" class="form-control" aria-label="Report period">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly" selected>Monthly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                            <select id="reportType" class="form-control" aria-label="Report type">
+                                <option value="overview">Overview</option>
+                                <option value="income-expense">Income vs Expense</option>
+                                <option value="category-wise">Category Analysis</option>
+                                <option value="trends">Trends</option>
+                            </select>
+                            <button class="btn btn--outline" id="exportPDF">
+                                <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                                Export PDF
+                            </button>
+                            <button class="btn btn--outline" id="exportExcel">
+                                <i class="fas fa-file-excel" aria-hidden="true"></i>
+                                Export Excel
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="reports__content">
+                        <div class="chart-container" style="position: relative; height: 400px;">
+                            <canvas id="reportChart" aria-label="Financial report chart"></canvas>
+                        </div>
+                        
+                        <div class="report-insights" id="reportInsights" aria-live="polite">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ai-chat" class="tab-content">
+                <div class="ai-chat">
+                    <div class="ai-chat__header">
+                        <h2>AI Financial Assistant</h2>
+                        <div class="ai-chat__status">
+                            <span class="ai-status online" aria-live="polite">🤖 Online</span>
+                            <button class="btn btn--sm btn--outline" id="clearChat">Clear Chat</button>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-chat__messages" id="chatMessages" role="log" aria-label="Chat messages" aria-live="polite">
+                        <div class="message ai-message">
+                            <div class="message__avatar">🤖</div>
+                            <div class="message__content">
+                                <p>Hello! I'm your AI financial assistant. I can help you with:</p>
+                                <ul>
+                                    <li>Budget analysis and recommendations</li>
+                                    <li>Investment advice and portfolio optimization</li>
+                                    <li>Debt management strategies</li>
+                                    <li>Savings goal planning</li>
+                                    <li>Expense categorization and insights</li>
+                                    <li>Credit card recommendations</li>
+                                </ul>
+                                <p>What would you like to know about your finances?</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-chat__suggestions" id="chatSuggestions">
+                        <button class="suggestion-btn" data-suggestion="How can I reduce my monthly expenses?">
+                            💡 Reduce Monthly Expenses
+                        </button>
+                        <button class="suggestion-btn" data-suggestion="What's the best investment strategy for me?">
+                            📈 Investment Strategy
+                        </button>
+                        <button class="suggestion-btn" data-suggestion="Help me create a budget plan">
+                            🎯 Budget Planning
+                        </button>
+                        <button class="suggestion-btn" data-suggestion="Recommend best credit cards for my spending">
+                            💳 Credit Card Recommendations
+                        </button>
+                    </div>
+                    
+                    <div class="ai-chat__input">
+                        <input type="text" id="chatInput" placeholder="Ask me about your finances..." class="form-control" aria-label="Chat input">
+                        <button id="voiceInputBtn" class="btn btn--outline voice-btn" aria-label="Voice input" title="Voice input">
+                            <i class="fas fa-microphone" aria-hidden="true"></i>
+                        </button>
+                        <button id="sendMessageBtn" class="btn btn--primary" aria-label="Send message">
+                            <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="transactionModal" class="modal hidden" role="dialog" aria-labelledby="transactionModalTitle" aria-modal="true">
+        <div class="modal__overlay"></div>
+        <div class="modal__content">
+            <div class="modal__header">
+                <h3 id="transactionModalTitle">Add Transaction</h3>
+                <button class="modal__close" aria-label="Close modal">&times;</button>
+            </div>
+            <form id="transactionForm" novalidate>
+                <div class="form-group">
+                    <label class="form-label" for="transactionAmount">Amount (₹) *</label>
+                    <input type="number" id="transactionAmount" class="form-control" required step="0.01" min="0" aria-describedby="amountError">
+                    <div class="form-error" id="amountError" role="alert"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="transactionType">Type *</label>
+                    <select id="transactionType" class="form-control" required aria-describedby="typeError">
+                        <option value="">Select Type</option>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                    <div class="form-error" id="typeError" role="alert"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="transactionCategory">Category *</label>
+                    <select id="transactionCategory" class="form-control" required aria-describedby="categoryError">
+                        <option value="">Select Category</option>
+                    </select>
+                    <div class="form-error" id="categoryError" role="alert"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="transactionDescription">Description *</label>
+                    <input type="text" id="transactionDescription" class="form-control" required maxlength="100" aria-describedby="descriptionError">
+                    <div class="form-error" id="descriptionError" role="alert"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="transactionDate">Date *</label>
+                    <input type="date" id="transactionDate" class="form-control" required aria-describedby="dateError">
+                    <div class="form-error" id="dateError" role="alert"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="transactionPaymentMethod">Payment Method</label>
+                    <select id="transactionPaymentMethod" class="form-control">
+                        <option value="cash">Cash</option>
+                        <option value="debit-card">Debit Card</option>
+                        <option value="credit-card">Credit Card</option>
+                        <option value="upi">UPI</option>
+                        <option value="bank-transfer">Bank Transfer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="transactionTags">Tags (comma-separated)</label>
+                    <input type="text" id="transactionTags" class="form-control" placeholder="e.g., groceries, monthly, essential">
+                </div>
+                <div class="modal__actions">
+                    <button type="button" class="btn btn--outline" id="cancelTransaction">Cancel</button>
+                    <button type="submit" class="btn btn--primary">
+                        <span class="btn-text">Add Transaction</span>
+                        <span class="btn-loader hidden">
+                            <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="notifications" class="notifications" role="alert" aria-live="assertive" aria-atomic="true"></div>
+
+    <div id="pwaInstallPrompt" class="pwa-install-prompt hidden">
+        <div class="pwa-prompt-content">
+            <div class="pwa-prompt-icon">
+                <i class="fas fa-mobile-alt" aria-hidden="true"></i>
+            </div>
+            <div class="pwa-prompt-text">
+                <h3>Install FinanceHub</h3>
+                <p>Get quick access to your finances with our app!</p>
+            </div>
+            <div class="pwa-prompt-actions">
+                <button id="pwaInstallBtn" class="btn btn--primary btn--sm">Install</button>
+                <button id="pwaCloseBtn" class="btn btn--outline btn--sm">Later</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="offlineIndicator" class="offline-indicator hidden">
+        <i class="fas fa-wifi" aria-hidden="true"></i>
+        <span>You're offline. Some features may be limited.</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
