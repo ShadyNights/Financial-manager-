@@ -204,8 +204,8 @@ class AIScheduleGenerator {
             });
 
             const data = await response.json();
-            if (data.candidates && data.candidates[0] && data.candidates.content && data.candidates.content.parts && data.candidates.content.parts) {
-                return data.candidates.content.parts.text;
+            if (data.candidates && data.candidates[0] && data.candidates.content && data.candidates[0].content.parts && data.candidates.content.parts) {
+                return data.candidates[0].content.parts.text;
             } else {
                 return this.generateFallbackPlan(userData);
             }
@@ -588,7 +588,7 @@ class MoneyMentorApp {
         const newTheme = this.currentUser.theme === 'light' ? 'dark' : 'light';
         this.currentUser.theme = newTheme;
         document.documentElement.setAttribute('data-color-scheme', newTheme);
-        this.saveUserSettings();
+        localStorage.setItem('moneymentor-theme', newTheme);
         const themeIcon = document.querySelector('#themeToggle i');
         if (themeIcon) {
             themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
@@ -668,7 +668,7 @@ class MoneyMentorApp {
             streakElement.appendChild(streakCard);
         }
 
-        if (!streakElement.querySelector('.ai-planner-btn')) {
+        if (!document.querySelector('.ai-planner-card')) {
             const aiPlannerBtn = document.createElement('div');
             aiPlannerBtn.className = 'metric-card ai-planner-card';
             aiPlannerBtn.innerHTML = `
@@ -1260,8 +1260,8 @@ class MoneyMentorApp {
             
             const data = await response.json();
             
-            if (data.candidates && data.candidates[0] && data.candidates.content && data.candidates.content.parts && data.candidates.content.parts) {
-                return data.candidates.content.parts.text;
+            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates.content.parts && data.candidates.content.parts) {
+                return data.candidates[0].content.parts.text;
             } else {
                 return this.getAIResponse(message);
             }
@@ -1287,3 +1287,144 @@ class MoneyMentorApp {
                 "begin with low-cost mutual funds and SIPs. Start with ₹500/month in diversified equity funds. Learn before you invest!" :
                 "diversify across equity, debt, and international funds. Consider ELSS for tax savings and increase SIP amounts annually.");
         } else {
+            return `I'm here to help with ${this.currentUser.role}-specific financial advice! Ask about budgeting, saving strategies, investments, or goal planning tailored to your situation.`;
+        }
+    }
+    
+    async sendChatMessage() {
+        const input = document.getElementById('chatInput');
+        if (!input) return;
+        
+        const message = input.value.trim();
+        if (!message) return;
+        
+        const messagesContainer = document.getElementById('chatMessages');
+        if (!messagesContainer) return;
+        
+        const userMessage = document.createElement('div');
+        userMessage.className = 'message user-message';
+        userMessage.innerHTML = `<div class="message__avatar">👤</div><div class="message__content"><p>${message}</p></div>`;
+        messagesContainer.appendChild(userMessage);
+        input.value = '';
+        
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'message ai-message typing-message';
+        typingIndicator.innerHTML = `<div class="message__avatar">🤖</div><div class="message__content"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+        messagesContainer.appendChild(typingIndicator);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        try {
+            const aiResponse = await this.fetchGeminiAIResponse(message);
+            typingIndicator.remove();
+            const aiMessage = document.createElement('div');
+            aiMessage.className = 'message ai-message';
+            aiMessage.innerHTML = `<div class="message__avatar">🤖</div><div class="message__content"><p>${aiResponse}</p></div>`;
+            messagesContainer.appendChild(aiMessage);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        } catch (error) {
+            typingIndicator.remove();
+            this.showNotification('Error fetching AI response', 'error');
+        }
+    }
+    
+    exportTransactions() {
+        const csv = this.convertToCSV(this.data.transactions, ['date', 'description', 'category', 'type', 'amount']);
+        this.downloadCSV(csv, 'transactions.csv');
+        this.showNotification('Transactions exported successfully!', 'success');
+    }
+    
+    exportReport() {
+        this.showNotification('Report export feature coming soon!', 'info');
+    }
+    
+    convertToCSV(data, headers) {
+        const csvContent = [
+            headers.join(','),
+            ...data.map(row => headers.map(header => row[header] || '').join(','))
+        ].join('\n');
+        return csvContent;
+    }
+    
+    downloadCSV(csvContent, filename) {
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+    
+    showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    hideModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    }
+    
+    clearForm(formId) {
+        const form = document.getElementById(formId);
+        if (form) {
+            form.reset();
+            if (formId === 'transactionForm') {
+                const transactionDate = document.getElementById('transactionDate');
+                if (transactionDate) transactionDate.valueAsDate = new Date();
+            }
+        }
+    }
+    
+    showNotification(message, type = 'info') {
+        const notificationsContainer = document.getElementById('notifications');
+        if (!notificationsContainer) return;
+        
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        notificationsContainer.appendChild(notification);
+        setTimeout(() => notification.remove(), 4000);
+    }
+}
+
+Date.prototype.getWeek = function () {
+    const date = new Date(this.getTime());
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    const week1 = new Date(date.getFullYear(), 0, 4);
+    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.moneyMentorApp = new MoneyMentorApp();
+    
+    document.documentElement.style.scrollBehavior = 'smooth';
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal:not(.hidden)').forEach(modal => {
+                window.moneyMentorApp.hideModal(modal.id);
+            });
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+            e.preventDefault();
+            window.moneyMentorApp.showModal('transactionModal');
+        }
+    });
+    
+    setTimeout(() => {
+        if (window.moneyMentorApp) {
+            window.moneyMentorApp.showNotification('Welcome to MoneyMentor! 🎉', 'success');
+        }
+    }, 2000);
+});
