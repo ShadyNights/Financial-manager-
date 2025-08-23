@@ -87,10 +87,10 @@
 }
 
 [data-color-scheme="light"] {
-  --bg-primary: #ffffff;
-  --bg-secondary: #fafafa;
-  --bg-tertiary: #f5f5f5;
-  --text-primary: #1a1a1a;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #f8f8f8;
+  --text-primary: #000000;
   --text-secondary: #6b7280;
   --border-color: #e5e7eb;
   --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -102,11 +102,11 @@
   --color-primary: var(--color-teal-500);
   --color-primary-hover: var(--color-teal-600);
   --color-primary-active: var(--color-teal-700);
-  --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
-  --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
-  --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
+  --color-secondary: rgba(var(--color-brown-600-rgb), 0.08);
+  --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.16);
   --color-border: var(--border-color);
-  --color-btn-primary-text: var(--color-cream-50);
+  --color-btn-primary-text: #FFFFFF;
   --color-card-border: var(--border-color);
   --color-card-border-inner: var(--border-color);
   --color-error: var(--color-red-500);
@@ -117,8 +117,8 @@
   --color-select-caret: rgba(var(--color-slate-900-rgb), 0.8);
   --focus-ring: 0 0 0 3px var(--color-focus-ring);
   --focus-outline: 2px solid var(--color-primary);
-  --status-bg-opacity: 0.15;
-  --status-border-opacity: 0.25;
+  --status-bg-opacity: 0.1;
+  --status-border-opacity: 0.2;
   --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   --color-success-rgb: var(--color-teal-500-rgb);
@@ -133,47 +133,47 @@
   --bg-tertiary: #111111;
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
-  --border-color: #27272a;
-  --shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
-  --shadow-hover: 0 4px 16px rgba(255, 255, 255, 0.1);
+  --border-color: #1f1f1f;
+  --shadow: 0 2px 8px rgba(255, 255, 255, 0.02);
+  --shadow-hover: 0 4px 16px rgba(255, 255, 255, 0.05);
   --color-gray-400-rgb: 119, 124, 124;
   --color-teal-300-rgb: 50, 184, 198;
   --color-gray-300-rgb: 167, 169, 169;
   --color-gray-200-rgb: 245, 245, 245;
-  --color-bg-1: rgba(29, 78, 216, 0.15);
-  --color-bg-2: rgba(180, 83, 9, 0.15);
-  --color-bg-3: rgba(21, 128, 61, 0.15);
-  --color-bg-4: rgba(185, 28, 28, 0.15);
-  --color-bg-5: rgba(107, 33, 168, 0.15);
-  --color-bg-6: rgba(194, 65, 12, 0.15);
-  --color-bg-7: rgba(190, 24, 93, 0.15);
-  --color-bg-8: rgba(8, 145, 178, 0.15);
+  --color-bg-1: rgba(29, 78, 216, 0.1);
+  --color-bg-2: rgba(180, 83, 9, 0.1);
+  --color-bg-3: rgba(21, 128, 61, 0.1);
+  --color-bg-4: rgba(185, 28, 28, 0.1);
+  --color-bg-5: rgba(107, 33, 168, 0.1);
+  --color-bg-6: rgba(194, 65, 12, 0.1);
+  --color-bg-7: rgba(190, 24, 93, 0.1);
+  --color-bg-8: rgba(8, 145, 178, 0.1);
   --color-background: var(--bg-primary);
   --color-surface: var(--bg-secondary);
   --color-text: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-primary: var(--color-teal-300);
   --color-primary-hover: var(--color-teal-400);
-  --color-primary-active: var(--color-teal-800);
-  --color-secondary: rgba(var(--color-gray-400-rgb), 0.15);
-  --color-secondary-hover: rgba(var(--color-gray-400-rgb), 0.25);
-  --color-secondary-active: rgba(var(--color-gray-400-rgb), 0.3);
+  --color-primary-active: var(--color-teal-500);
+  --color-secondary: rgba(255, 255, 255, 0.05);
+  --color-secondary-hover: rgba(255, 255, 255, 0.08);
+  --color-secondary-active: rgba(255, 255, 255, 0.12);
   --color-border: var(--border-color);
   --color-error: var(--color-red-400);
   --color-success: var(--color-teal-300);
   --color-warning: var(--color-orange-400);
   --color-info: var(--color-gray-300);
   --color-focus-ring: rgba(var(--color-teal-300-rgb), 0.4);
-  --color-btn-primary-text: var(--color-slate-900);
+  --color-btn-primary-text: #000000;
   --color-card-border: var(--border-color);
   --color-card-border-inner: var(--border-color);
-  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.15);
-  --color-border-secondary: rgba(var(--color-gray-400-rgb), 0.2);
+  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  --color-border-secondary: rgba(255, 255, 255, 0.1);
   --color-select-caret: rgba(var(--color-gray-200-rgb), 0.8);
   --focus-ring: 0 0 0 3px var(--color-focus-ring);
   --focus-outline: 2px solid var(--color-primary);
-  --status-bg-opacity: 0.15;
-  --status-border-opacity: 0.25;
+  --status-bg-opacity: 0.1;
+  --status-border-opacity: 0.2;
   --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   --color-success-rgb: var(--color-teal-300-rgb);
@@ -188,41 +188,41 @@
     --color-teal-300-rgb: 50, 184, 198;
     --color-gray-300-rgb: 167, 169, 169;
     --color-gray-200-rgb: 245, 245, 245;
-    --color-bg-1: rgba(29, 78, 216, 0.15);
-    --color-bg-2: rgba(180, 83, 9, 0.15);
-    --color-bg-3: rgba(21, 128, 61, 0.15);
-    --color-bg-4: rgba(185, 28, 28, 0.15);
-    --color-bg-5: rgba(107, 33, 168, 0.15);
-    --color-bg-6: rgba(194, 65, 12, 0.15);
-    --color-bg-7: rgba(190, 24, 93, 0.15);
-    --color-bg-8: rgba(8, 145, 178, 0.15);
-    --color-background: var(--color-charcoal-700);
-    --color-surface: var(--color-charcoal-800);
-    --color-text: var(--color-gray-200);
-    --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
+    --color-bg-1: rgba(29, 78, 216, 0.1);
+    --color-bg-2: rgba(180, 83, 9, 0.1);
+    --color-bg-3: rgba(21, 128, 61, 0.1);
+    --color-bg-4: rgba(185, 28, 28, 0.1);
+    --color-bg-5: rgba(107, 33, 168, 0.1);
+    --color-bg-6: rgba(194, 65, 12, 0.1);
+    --color-bg-7: rgba(190, 24, 93, 0.1);
+    --color-bg-8: rgba(8, 145, 178, 0.1);
+    --color-background: #000000;
+    --color-surface: #0a0a0a;
+    --color-text: #ffffff;
+    --color-text-secondary: #a1a1aa;
     --color-primary: var(--color-teal-300);
     --color-primary-hover: var(--color-teal-400);
-    --color-primary-active: var(--color-teal-800);
-    --color-secondary: rgba(var(--color-gray-400-rgb), 0.15);
-    --color-secondary-hover: rgba(var(--color-gray-400-rgb), 0.25);
-    --color-secondary-active: rgba(var(--color-gray-400-rgb), 0.3);
-    --color-border: rgba(var(--color-gray-400-rgb), 0.3);
+    --color-primary-active: var(--color-teal-500);
+    --color-secondary: rgba(255, 255, 255, 0.05);
+    --color-secondary-hover: rgba(255, 255, 255, 0.08);
+    --color-secondary-active: rgba(255, 255, 255, 0.12);
+    --color-border: #1f1f1f;
     --color-error: var(--color-red-400);
     --color-success: var(--color-teal-300);
     --color-warning: var(--color-orange-400);
     --color-info: var(--color-gray-300);
     --color-focus-ring: rgba(var(--color-teal-300-rgb), 0.4);
-    --color-btn-primary-text: var(--color-slate-900);
-    --color-card-border: rgba(var(--color-gray-400-rgb), 0.2);
-    --color-card-border-inner: rgba(var(--color-gray-400-rgb), 0.15);
-    --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.15);
-    --button-border-secondary: rgba(var(--color-gray-400-rgb), 0.2);
-    --color-border-secondary: rgba(var(--color-gray-400-rgb), 0.2);
+    --color-btn-primary-text: #000000;
+    --color-card-border: #1f1f1f;
+    --color-card-border-inner: #1f1f1f;
+    --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    --button-border-secondary: rgba(255, 255, 255, 0.1);
+    --color-border-secondary: rgba(255, 255, 255, 0.1);
     --color-select-caret: rgba(var(--color-gray-200-rgb), 0.8);
     --focus-ring: 0 0 0 3px var(--color-focus-ring);
     --focus-outline: 2px solid var(--color-primary);
-    --status-bg-opacity: 0.15;
-    --status-border-opacity: 0.25;
+    --status-bg-opacity: 0.1;
+    --status-border-opacity: 0.2;
     --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     --color-success-rgb: var(--color-teal-300-rgb);
@@ -818,12 +818,11 @@ select.form-control {
   color: var(--color-text-secondary);
 }
 
-.transaction-amount { text-align: right; }
+.transaction-amount { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-4); }
 
 .transaction-amount .amount {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
-  margin-bottom: var(--space-2);
 }
 
 .transaction-amount .amount.income { color: var(--color-success); }
@@ -832,6 +831,10 @@ select.form-control {
 .transaction-date {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+}
+
+.btn-remove-transaction {
+  margin-top: var(--space-4);
 }
 
 .budget__header {
