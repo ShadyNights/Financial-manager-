@@ -1,3 +1,330 @@
+class GoalBasedStreakSystem {
+    constructor(app) {
+        this.app = app;
+        this.streaks = {
+            goalCompletionDays: 0,
+            lastGoalCompletionDate: null,
+            longestGoalStreak: 0,
+            totalGoalsCompleted: 0
+        };
+        this.loadStreakData();
+    }
+
+    checkDailyGoalProgress(date = new Date()) {
+        const today = date.toDateString();
+        const scheduledGoals = this.getScheduledGoalsForDate(today);
+        let goalsMet = 0;
+        let totalGoals = scheduledGoals.length;
+
+        scheduledGoals.forEach(goal => {
+            if (this.isGoalMetForDate(goal, today)) {
+                goalsMet++;
+            }
+        });
+
+        if (totalGoals > 0 && goalsMet === totalGoals) {
+            this.incrementStreak(today);
+            this.app.showNotification(`🔥 Goal streak: ${this.streaks.goalCompletionDays} days!`, 'success');
+        } else if (totalGoals > 0) {
+            this.resetStreak();
+            this.app.showNotification('Streak broken. Get back on track tomorrow!', 'warning');
+        }
+    }
+
+    getScheduledGoalsForDate(date) {
+        return this.app.data.aiGeneratedSchedule.filter(schedule => {
+            return this.isDateInScheduleRange(date, schedule);
+        });
+    }
+
+    isGoalMetForDate(schedule, date) {
+        const dailyTarget = schedule.monthlyAllocation / 30;
+        const savingsForDate = this.getSavingsForDate(date);
+        return savingsForDate >= dailyTarget;
+    }
+
+    getSavingsForDate(date) {
+        const transactions = this.app.data.transactions.filter(t => 
+            new Date(t.date).toDateString() === date
+        );
+        const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + parseFloat(t.amount), 0);
+        const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + parseFloat(t.amount), 0);
+        return income - expenses;
+    }
+
+    isDateInScheduleRange(date, schedule) {
+        const scheduleDate = new Date(schedule.deadline);
+        const currentDate = new Date(date);
+        return currentDate <= scheduleDate;
+    }
+
+    incrementStreak(date) {
+        if (this.isConsecutiveDay(this.streaks.lastGoalCompletionDate, date)) {
+            this.streaks.goalCompletionDays++;
+        } else {
+            this.streaks.goalCompletionDays = 1;
+        }
+        
+        this.streaks.lastGoalCompletionDate = date;
+        if (this.streaks.goalCompletionDays > this.streaks.longestGoalStreak) {
+            this.streaks.longestGoalStreak = this.streaks.goalCompletionDays;
+        }
+        this.saveStreakData();
+    }
+
+    resetStreak() {
+        this.streaks.goalCompletionDays = 0;
+        this.saveStreakData();
+    }
+
+    isConsecutiveDay(lastDate, currentDate) {
+        if (!lastDate) return false;
+        const last = new Date(lastDate);
+        const current = new Date(currentDate);
+        const diffTime = current - last;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays === 1;
+    }
+
+    saveStreakData() {
+        localStorage.setItem('moneymentor-streaks', JSON.stringify(this.streaks));
+    }
+
+    loadStreakData() {
+        const saved = localStorage.getItem('moneymentor-streaks');
+        if (saved) {
+            this.streaks = { ...this.streaks, ...JSON.parse(saved) };
+        }
+    }
+}
+
+class AIScheduleGenerator {
+    constructor(app) {
+        this.app = app;
+        this.geminiApiKey = 'AIzaSyANEE80xhtVYnnZjASGfThI9mX9ytcUotY';
+    }
+
+    showPlannerModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal ai-planner-modal';
+        modal.innerHTML = `
+            <div class="modal__overlay"></div>
+            <div class="modal__content">
+                <div class="modal__header">
+                    <h3>🤖 AI Financial Planner</h3>
+                    <button class="modal__close">&times;</button>
+                </div>
+                <form id="aiPlannerForm">
+                    <div class="form-group">
+                        <label class="form-label">Monthly Income (₹)</label>
+                        <input type="number" id="plannerIncome" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Monthly Fixed Expenses (₹)</label>
+                        <input type="number" id="plannerExpenses" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Financial Goals (one per line)</label>
+                        <textarea id="plannerGoals" class="form-control" rows="4" 
+                                  placeholder="New Laptop - ₹80000 - 2025-10-15&#10;Emergency Fund - ₹100000 - 2025-12-31&#10;Vacation - ₹50000 - 2025-09-30"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Risk Tolerance</label>
+                        <select id="plannerRisk" class="form-control">
+                            <option value="conservative">Conservative</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="aggressive">Aggressive</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Age</label>
+                        <input type="number" id="plannerAge" class="form-control" min="18" max="100">
+                    </div>
+                    <div class="modal__actions">
+                        <button type="button" class="btn btn--outline" onclick="this.closest('.modal').remove()">Cancel</button>
+                        <button type="submit" class="btn btn--primary">Generate AI Plan 🚀</button>
+                    </div>
+                </form>
+                <div id="aiPlanResult" class="ai-plan-result hidden"></div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        modal.querySelector('#aiPlannerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.generateAIPlan(modal);
+        });
+
+        modal.querySelector('.modal__close').addEventListener('click', () => {
+            modal.remove();
+        });
+    }
+
+    async generateAIPlan(modal) {
+        const income = parseFloat(document.getElementById('plannerIncome').value);
+        const expenses = parseFloat(document.getElementById('plannerExpenses').value);
+        const goalsText = document.getElementById('plannerGoals').value;
+        const risk = document.getElementById('plannerRisk').value;
+        const age = parseInt(document.getElementById('plannerAge').value);
+
+        const goals = this.parseGoalsFromText(goalsText);
+        
+        const resultDiv = modal.querySelector('#aiPlanResult');
+        resultDiv.className = 'ai-plan-result';
+        resultDiv.innerHTML = '<div class="loading">🤖 AI is crafting your personalized plan...</div>';
+
+        try {
+            const aiPlan = await this.callGeminiForPlan({ income, expenses, goals, risk, age });
+            this.displayAIPlan(resultDiv, aiPlan, goals);
+            this.saveGeneratedPlan(aiPlan, goals);
+        } catch (error) {
+            resultDiv.innerHTML = '<div class="error">❌ Error generating plan. Please try again.</div>';
+        }
+    }
+
+    async callGeminiForPlan(userData) {
+        const prompt = `You are a financial advisor AI. Based on this user data:
+        - Monthly Income: ₹${userData.income}
+        - Monthly Expenses: ₹${userData.expenses}
+        - Available Savings: ₹${userData.income - userData.expenses}
+        - Risk Tolerance: ${userData.risk}
+        - Age: ${userData.age}
+        - Goals: ${JSON.stringify(userData.goals)}
+
+        Generate a detailed financial plan with monthly savings allocation for each goal, investment strategy recommendations, emergency fund suggestions, and timeline feasibility analysis. Keep response concise and actionable.`;
+
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${this.geminiApiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                })
+            });
+
+            const data = await response.json();
+            if (data.candidates && data.candidates[0] && data.candidates.content && data.candidates.content.parts && data.candidates.content.parts) {
+                return data.candidates.content.parts.text;
+            } else {
+                return this.generateFallbackPlan(userData);
+            }
+        } catch (error) {
+            return this.generateFallbackPlan(userData);
+        }
+    }
+
+    parseGoalsFromText(text) {
+        const lines = text.split('\n').filter(line => line.trim());
+        return lines.map(line => {
+            const parts = line.split(' - ');
+            if (parts.length >= 3) {
+                return {
+                    name: parts[0].trim(),
+                    amount: parseInt(parts[10].replace(/[₹,]/g, '')),
+                    deadline: parts[1].trim()
+                };
+            }
+            return null;
+        }).filter(goal => goal !== null);
+    }
+
+    displayAIPlan(container, aiResponse, goals) {
+        const netSavings = this.calculateNetSavings();
+        
+        container.innerHTML = `
+            <div class="ai-plan-success">
+                <h4>🎯 Your Personalized Financial Plan</h4>
+                <div class="plan-summary">
+                    <div class="summary-item">
+                        <strong>Monthly Savings Available:</strong> ₹${netSavings.toLocaleString()}
+                    </div>
+                </div>
+                
+                <div class="goals-breakdown">
+                    <h5>📊 Goal Allocation:</h5>
+                    ${goals.map(goal => {
+                        const monthsLeft = this.getMonthsUntilDeadline(goal.deadline);
+                        const monthlyRequired = goal.amount / monthsLeft;
+                        const feasible = monthlyRequired <= netSavings;
+                        
+                        return `
+                            <div class="goal-item ${feasible ? 'feasible' : 'challenging'}">
+                                <div class="goal-info">
+                                    <strong>${goal.name}</strong>
+                                    <span class="goal-amount">₹${goal.amount.toLocaleString()}</span>
+                                </div>
+                                <div class="goal-timeline">
+                                    <span>Monthly: ₹${monthlyRequired.toFixed(0)}</span>
+                                    <span class="timeline">${monthsLeft} months</span>
+                                    <span class="feasibility ${feasible ? 'green' : 'red'}">
+                                        ${feasible ? '✅ Achievable' : '⚠️ Challenging'}
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                
+                <div class="ai-recommendations">
+                    <h5>🤖 AI Recommendations:</h5>
+                    <div class="recommendation-text">${aiResponse}</div>
+                </div>
+                
+                <div class="plan-actions">
+                    <button class="btn btn--primary" onclick="window.moneyMentorApp.acceptAIPlan('${JSON.stringify(goals).replace(/'/g, "\\'")}')">Accept Plan & Start Tracking</button>
+                    <button class="btn btn--outline" onclick="this.closest('.modal').remove()">Close</button>
+                </div>
+            </div>
+        `;
+    }
+
+    saveGeneratedPlan(aiPlan, goals) {
+        this.app.data.aiGeneratedSchedule = goals.map(goal => ({
+            ...goal,
+            monthlyAllocation: goal.amount / this.getMonthsUntilDeadline(goal.deadline),
+            status: 'active',
+            progress: 0
+        }));
+
+        goals.forEach(goal => {
+            this.app.data.goals.push({
+                ...goal,
+                id: Date.now() + Math.random(),
+                current: 0,
+                target: goal.amount
+            });
+        });
+
+        this.app.showNotification('🚀 AI Plan saved! Your streak tracking begins now.', 'success');
+    }
+
+    getMonthsUntilDeadline(deadline) {
+        const today = new Date();
+        const deadlineDate = new Date(deadline);
+        const monthsDiff = (deadlineDate.getFullYear() - today.getFullYear()) * 12 + 
+                          (deadlineDate.getMonth() - today.getMonth());
+        return Math.max(monthsDiff, 1);
+    }
+
+    calculateNetSavings() {
+        const income = parseFloat(document.getElementById('plannerIncome')?.value || 0);
+        const expenses = parseFloat(document.getElementById('plannerExpenses')?.value || 0);
+        return income - expenses;
+    }
+
+    generateFallbackPlan(userData) {
+        return `Based on your ₹${userData.income - userData.expenses} monthly savings capacity:
+
+        💡 Recommendations:
+        • Emergency Fund: Allocate 30% (₹${((userData.income - userData.expenses) * 0.3).toFixed(0)})
+        • Goal Savings: Allocate 50% (₹${((userData.income - userData.expenses) * 0.5).toFixed(0)})
+        • Investment: Allocate 20% (₹${((userData.income - userData.expenses) * 0.2).toFixed(0)})
+
+        🎯 Strategy: Start with systematic investment plans (SIPs) and automate your savings to maintain consistency.`;
+    }
+}
+
 class MoneyMentorApp {
     constructor() {
         this.currentUser = { role: 'student', theme: 'light' };
@@ -9,9 +336,12 @@ class MoneyMentorApp {
             investments: [],
             loans: [],
             achievements: [],
-            streak: { savingsDays: 0, budgetDays: 0 }
+            streak: { savingsDays: 0, budgetDays: 0 },
+            aiGeneratedSchedule: []
         };
         this.charts = {};
+        this.streakSystem = new GoalBasedStreakSystem(this);
+        this.aiScheduler = new AIScheduleGenerator(this);
         this.init();
     }
     
@@ -26,48 +356,32 @@ class MoneyMentorApp {
     loadSampleData() {
         const sampleData = {
             sampleTransactions: [
-                // Income transactions
                 { id: "1", amount: 25000, category: "Salary", date: "2025-08-01", type: "income", description: "Monthly salary" },
                 { id: "2", amount: 5000, category: "Freelance", date: "2025-08-05", type: "income", description: "Web design project" },
                 { id: "3", amount: 3000, category: "Freelance", date: "2025-08-15", type: "income", description: "Logo design work" },
                 { id: "4", amount: 1200, category: "Other", date: "2025-08-20", type: "income", description: "Cashback from credit card" },
-                
-                // Food expenses
                 { id: "5", amount: 150, category: "Food", date: "2025-08-23", type: "expense", description: "Groceries - Supermarket" },
                 { id: "6", amount: 80, category: "Food", date: "2025-08-22", type: "expense", description: "Dinner at restaurant" },
                 { id: "7", amount: 45, category: "Food", date: "2025-08-21", type: "expense", description: "Lunch delivery" },
                 { id: "8", amount: 120, category: "Food", date: "2025-08-20", type: "expense", description: "Weekly groceries" },
                 { id: "9", amount: 65, category: "Food", date: "2025-08-19", type: "expense", description: "Coffee and snacks" },
-                
-                // Transport expenses
                 { id: "10", amount: 200, category: "Transport", date: "2025-08-18", type: "expense", description: "Monthly bus pass" },
                 { id: "11", amount: 150, category: "Transport", date: "2025-08-16", type: "expense", description: "Uber rides" },
                 { id: "12", amount: 80, category: "Transport", date: "2025-08-14", type: "expense", description: "Metro card recharge" },
-                
-                // Entertainment expenses
                 { id: "13", amount: 500, category: "Entertainment", date: "2025-08-17", type: "expense", description: "Movie tickets with friends" },
                 { id: "14", amount: 300, category: "Entertainment", date: "2025-08-12", type: "expense", description: "Concert tickets" },
                 { id: "15", amount: 180, category: "Entertainment", date: "2025-08-10", type: "expense", description: "Gaming subscription" },
-                
-                // Shopping expenses
                 { id: "16", amount: 1200, category: "Shopping", date: "2025-08-13", type: "expense", description: "New clothes for work" },
                 { id: "17", amount: 800, category: "Shopping", date: "2025-08-08", type: "expense", description: "Electronics accessories" },
                 { id: "18", amount: 450, category: "Shopping", date: "2025-08-06", type: "expense", description: "Books and stationery" },
-                
-                // Bills and utilities
                 { id: "19", amount: 1500, category: "Bills", date: "2025-08-02", type: "expense", description: "Electricity bill" },
                 { id: "20", amount: 899, category: "Bills", date: "2025-08-03", type: "expense", description: "Internet bill" },
                 { id: "21", amount: 600, category: "Bills", date: "2025-08-04", type: "expense", description: "Mobile recharge" },
-                
-                // Healthcare
                 { id: "22", amount: 800, category: "Healthcare", date: "2025-08-09", type: "expense", description: "Doctor consultation" },
                 { id: "23", amount: 350, category: "Healthcare", date: "2025-08-11", type: "expense", description: "Medicines" },
-                
-                // Education
                 { id: "24", amount: 2500, category: "Education", date: "2025-08-07", type: "expense", description: "Online course subscription" },
                 { id: "25", amount: 150, category: "Education", date: "2025-08-14", type: "expense", description: "Study materials" }
             ],
-            
             budgetCategories: [
                 { name: "Food", limit: 3000, spent: 1460, color: "#ff6b6b" },
                 { name: "Transport", limit: 1500, spent: 830, color: "#4ecdc4" },
@@ -77,7 +391,6 @@ class MoneyMentorApp {
                 { name: "Healthcare", limit: 2000, spent: 1150, color: "#ff9ff3" },
                 { name: "Education", limit: 5000, spent: 2650, color: "#54a0ff" }
             ],
-            
             savingsGoals: [
                 { name: "Emergency Fund", target: 50000, current: 18500, deadline: "2025-12-31" },
                 { name: "New Laptop", target: 80000, current: 45000, deadline: "2025-10-15" },
@@ -85,7 +398,6 @@ class MoneyMentorApp {
                 { name: "Investment Capital", target: 100000, current: 25000, deadline: "2026-03-15" },
                 { name: "Course Certification", target: 15000, current: 8500, deadline: "2025-11-20" }
             ],
-            
             subscriptions: [
                 { name: "Netflix Premium", cost: 899, renewalDate: "2025-09-20", category: "Entertainment" },
                 { name: "Spotify Premium", cost: 119, renewalDate: "2025-08-28", category: "Music" },
@@ -98,7 +410,6 @@ class MoneyMentorApp {
                 { name: "Gym Membership", cost: 1500, renewalDate: "2025-09-30", category: "Fitness" },
                 { name: "Coursera Plus", cost: 399, renewalDate: "2025-10-15", category: "Education" }
             ],
-            
             investments: [
                 { symbol: "RELIANCE", name: "Reliance Industries Ltd", shares: 15, buyPrice: 2400, currentPrice: 2580 },
                 { symbol: "TCS", name: "Tata Consultancy Services", shares: 8, buyPrice: 3200, currentPrice: 3450 },
@@ -109,30 +420,6 @@ class MoneyMentorApp {
                 { symbol: "GOLDBEES", name: "Gold ETF", shares: 25, buyPrice: 45, currentPrice: 48 },
                 { symbol: "SENSEX", name: "Sensex ETF", shares: 30, buyPrice: 420, currentPrice: 445 }
             ],
-            
-            loans: [
-                { 
-                    id: "1", 
-                    type: "Student Loan", 
-                    principal: 200000, 
-                    interest: 8.5, 
-                    emi: 2847, 
-                    remaining: 165000, 
-                    nextPayment: "2025-09-01",
-                    tenure: 84 
-                },
-                { 
-                    id: "2", 
-                    type: "Personal Loan", 
-                    principal: 50000, 
-                    interest: 12.0, 
-                    emi: 1567, 
-                    remaining: 38500, 
-                    nextPayment: "2025-09-05",
-                    tenure: 36 
-                }
-            ],
-            
             achievements: [
                 { name: "First Budget", description: "Created your first budget", unlocked: true, icon: "🎯" },
                 { name: "Savings Streak", description: "Saved money for 7 days straight", unlocked: true, icon: "🔥" },
@@ -147,30 +434,14 @@ class MoneyMentorApp {
             ]
         };
         
-        // Calculate actual spent amounts for budgets based on transactions
-        const expensesByCategory = {};
-        sampleData.sampleTransactions.filter(t => t.type === 'expense').forEach(t => {
-            expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + parseFloat(t.amount);
-        });
-        
-        // Update budget spent amounts
-        sampleData.budgetCategories.forEach(budget => {
-            if (expensesByCategory[budget.name]) {
-                budget.spent = expensesByCategory[budget.name];
-            }
-        });
-        
         this.data.transactions = sampleData.sampleTransactions.map(t => ({ ...t, id: Date.now() + Math.random() }));
         this.data.budgets = sampleData.budgetCategories.map(b => ({ ...b }));
         this.data.goals = sampleData.savingsGoals.map(g => ({ ...g, id: Date.now() + Math.random() }));
         this.data.subscriptions = sampleData.subscriptions.map(s => ({ ...s, id: Date.now() + Math.random() }));
         this.data.investments = sampleData.investments.map(i => ({ ...i, id: Date.now() + Math.random() }));
-        this.data.loans = sampleData.loans;
         this.data.achievements = sampleData.achievements;
         this.data.streak = { savingsDays: 12, budgetDays: 8 };
     }
-    
-    // ... rest of the code remains the same as in the previous version
     
     setupEventListeners() {
         document.getElementById('themeToggle').addEventListener('click', () => this.toggleTheme());
@@ -318,12 +589,35 @@ class MoneyMentorApp {
                     <i class="fas fa-fire"></i>
                 </div>
                 <div class="metric-card__content">
-                    <h3>Current Streak</h3>
-                    <p class="metric-card__value">${this.data.streak.savingsDays}🔥 Savings | ${this.data.streak.budgetDays}🔥 Budget</p>
+                    <h3>Goal Streak</h3>
+                    <p class="metric-card__value">${this.streakSystem.streaks.goalCompletionDays}🔥 Days</p>
+                    <small>Best: ${this.streakSystem.streaks.longestGoalStreak} days</small>
                 </div>
             `;
             streakElement.appendChild(streakCard);
         }
+
+        if (!streakElement.querySelector('.ai-planner-btn')) {
+            const aiPlannerBtn = document.createElement('div');
+            aiPlannerBtn.className = 'metric-card ai-planner-card';
+            aiPlannerBtn.innerHTML = `
+                <div class="metric-card__icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="metric-card__content">
+                    <h3>AI Planner</h3>
+                    <p class="metric-card__value">Generate Plan</p>
+                    <button class="btn btn--primary ai-planner-btn">🤖 Start AI Planning</button>
+                </div>
+            `;
+            streakElement.appendChild(aiPlannerBtn);
+            
+            aiPlannerBtn.querySelector('.ai-planner-btn').addEventListener('click', () => {
+                this.aiScheduler.showPlannerModal();
+            });
+        }
+        
+        this.streakSystem.checkDailyGoalProgress();
     }
     
     updateMetrics() {
@@ -377,8 +671,6 @@ class MoneyMentorApp {
             const date = new Date();
             date.setDate(date.getDate() - i);
             days.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
-            
-            // More realistic demo data
             const baseIncome = 1000 + Math.random() * 2000;
             const baseExpense = 800 + Math.random() * 1200;
             incomeData.push(baseIncome);
@@ -739,6 +1031,7 @@ class MoneyMentorApp {
         this.hideModal('transactionModal');
         this.clearForm('transactionForm');
         this.showNotification('Transaction added successfully!', 'success');
+        this.streakSystem.checkDailyGoalProgress();
         if (document.getElementById('dashboard').classList.contains('active')) this.renderDashboard();
         if (document.getElementById('transactions').classList.contains('active')) this.renderTransactions();
     }
@@ -850,6 +1143,17 @@ class MoneyMentorApp {
             this.renderSubscriptions();
         }
     }
+
+    acceptAIPlan(goalsJson) {
+        try {
+            const goals = JSON.parse(goalsJson);
+            this.aiScheduler.saveGeneratedPlan('', goals);
+            this.renderDashboard();
+            document.querySelector('.ai-planner-modal').remove();
+        } catch (error) {
+            this.showNotification('Error accepting plan', 'error');
+        }
+    }
     
     async fetchGeminiAIResponse(message) {
         const API_KEY = 'AIzaSyANEE80xhtVYnnZjASGfThI9mX9ytcUotY';
@@ -876,7 +1180,6 @@ class MoneyMentorApp {
                 return this.getAIResponse(message);
             }
         } catch (error) {
-            console.error('Gemini API Error:', error);
             return this.getAIResponse(message);
         }
     }
