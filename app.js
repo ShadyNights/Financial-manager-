@@ -82,26 +82,43 @@ class MoneyMentorApp {
         });
         
         this.setupModalHandlers();
-        document.getElementById('transactionForm').addEventListener('submit', (e) => this.handleTransactionSubmit(e));
-        document.getElementById('goalForm').addEventListener('submit', (e) => this.handleGoalSubmit(e));
-        document.getElementById('investmentForm').addEventListener('submit', (e) => this.handleInvestmentSubmit(e));
-        document.getElementById('subscriptionForm').addEventListener('submit', (e) => this.handleSubscriptionSubmit(e));
-        document.getElementById('budgetForm').addEventListener('submit', (e) => this.handleBudgetSubmit(e));
-        document.getElementById('sendMessageBtn').addEventListener('click', () => this.sendChatMessage());
-        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+        
+        const transactionForm = document.getElementById('transactionForm');
+        const goalForm = document.getElementById('goalForm');
+        const investmentForm = document.getElementById('investmentForm');
+        const subscriptionForm = document.getElementById('subscriptionForm');
+        const budgetForm = document.getElementById('budgetForm');
+        
+        if (transactionForm) transactionForm.addEventListener('submit', (e) => this.handleTransactionSubmit(e));
+        if (goalForm) goalForm.addEventListener('submit', (e) => this.handleGoalSubmit(e));
+        if (investmentForm) investmentForm.addEventListener('submit', (e) => this.handleInvestmentSubmit(e));
+        if (subscriptionForm) subscriptionForm.addEventListener('submit', (e) => this.handleSubscriptionSubmit(e));
+        if (budgetForm) budgetForm.addEventListener('submit', (e) => this.handleBudgetSubmit(e));
+        
+        const sendBtn = document.getElementById('sendMessageBtn');
+        const chatInput = document.getElementById('chatInput');
+        if (sendBtn) sendBtn.addEventListener('click', () => this.sendChatMessage());
+        if (chatInput) chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.sendChatMessage();
         });
-        document.getElementById('exportTransactions').addEventListener('click', () => this.exportTransactions());
-        document.getElementById('exportReport').addEventListener('click', () => this.exportReport());
-        document.getElementById('transactionDate').valueAsDate = new Date();
+        
+        const exportTransBtn = document.getElementById('exportTransactions');
+        const exportReportBtn = document.getElementById('exportReport');
+        if (exportTransBtn) exportTransBtn.addEventListener('click', () => this.exportTransactions());
+        if (exportReportBtn) exportReportBtn.addEventListener('click', () => this.exportReport());
+        
+        const transactionDate = document.getElementById('transactionDate');
+        if (transactionDate) transactionDate.valueAsDate = new Date();
     }
     
     setupModalHandlers() {
-        document.getElementById('addTransactionBtn').addEventListener('click', () => this.showModal('transactionModal'));
-        document.getElementById('addGoalBtn').addEventListener('click', () => this.showModal('goalModal'));
-        document.getElementById('addInvestmentBtn').addEventListener('click', () => this.showModal('investmentModal'));
-        document.getElementById('addSubscriptionBtn').addEventListener('click', () => this.showModal('subscriptionModal'));
-        document.getElementById('addBudgetBtn').addEventListener('click', () => this.showModal('budgetModal'));
+        const addTransactionBtn = document.getElementById('addTransactionBtn');
+        const addGoalBtn = document.getElementById('addGoalBtn');
+        const addInvestmentBtn = document.getElementById('addInvestmentBtn');
+        
+        if (addTransactionBtn) addTransactionBtn.addEventListener('click', () => this.showModal('transactionModal'));
+        if (addGoalBtn) addGoalBtn.addEventListener('click', () => this.showModal('goalModal'));
+        if (addInvestmentBtn) addInvestmentBtn.addEventListener('click', () => this.showModal('investmentModal'));
         
         document.querySelectorAll('.modal__close').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -117,11 +134,18 @@ class MoneyMentorApp {
             });
         });
         
-        document.getElementById('cancelTransaction').addEventListener('click', () => this.hideModal('transactionModal'));
-        document.getElementById('cancelGoal').addEventListener('click', () => this.hideModal('goalModal'));
-        document.getElementById('cancelInvestment').addEventListener('click', () => this.hideModal('investmentModal'));
-        document.getElementById('cancelSubscription').addEventListener('click', () => this.hideModal('subscriptionModal'));
-        document.getElementById('cancelBudget').addEventListener('click', () => this.hideModal('budgetModal'));
+        const cancelButtons = [
+            'cancelTransaction', 'cancelGoal', 'cancelInvestment', 
+            'cancelSubscription', 'cancelBudget'
+        ];
+        
+        cancelButtons.forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) {
+                const modalId = id.replace('cancel', '').toLowerCase() + 'Modal';
+                btn.addEventListener('click', () => this.hideModal(modalId));
+            }
+        });
     }
     
     setupTheme() {
@@ -129,7 +153,9 @@ class MoneyMentorApp {
         this.currentUser.theme = savedTheme;
         document.documentElement.setAttribute('data-color-scheme', savedTheme);
         const themeIcon = document.querySelector('#themeToggle i');
-        themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        if (themeIcon) {
+            themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
     }
     
     toggleTheme() {
@@ -138,14 +164,17 @@ class MoneyMentorApp {
         document.documentElement.setAttribute('data-color-scheme', newTheme);
         localStorage.setItem('moneymentor-theme', newTheme);
         const themeIcon = document.querySelector('#themeToggle i');
-        themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        if (themeIcon) {
+            themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
         this.showNotification('Theme switched to ' + newTheme + ' mode', 'success');
     }
     
     switchRole(role) {
         this.currentUser.role = role;
         document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(role + 'Role').classList.add('active');
+        const roleBtn = document.getElementById(role + 'Role');
+        if (roleBtn) roleBtn.classList.add('active');
         this.renderDashboard();
         this.showNotification(`Switched to ${role} dashboard`, 'success');
     }
@@ -153,8 +182,12 @@ class MoneyMentorApp {
     showTab(tabName) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.nav__item').forEach(nav => nav.classList.remove('active'));
-        document.getElementById(tabName).classList.add('active');
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        
+        const tabContent = document.getElementById(tabName);
+        const navItem = document.querySelector(`[data-tab="${tabName}"]`);
+        
+        if (tabContent) tabContent.classList.add('active');
+        if (navItem) navItem.classList.add('active');
         
         switch (tabName) {
             case 'dashboard': this.renderDashboard(); break;
@@ -196,10 +229,15 @@ class MoneyMentorApp {
         const totalBalance = totalIncome - totalExpenses;
         const savingsRate = totalIncome > 0 ? ((totalBalance / totalIncome) * 100).toFixed(1) : 0;
         
-        document.getElementById('totalBalance').textContent = `₹${totalBalance.toLocaleString()}`;
-        document.getElementById('monthlyIncome').textContent = `₹${totalIncome.toLocaleString()}`;
-        document.getElementById('monthlyExpenses').textContent = `₹${totalExpenses.toLocaleString()}`;
-        document.getElementById('savingsRate').textContent = `${savingsRate}%`;
+        const totalBalanceEl = document.getElementById('totalBalance');
+        const monthlyIncomeEl = document.getElementById('monthlyIncome');
+        const monthlyExpensesEl = document.getElementById('monthlyExpenses');
+        const savingsRateEl = document.getElementById('savingsRate');
+        
+        if (totalBalanceEl) totalBalanceEl.textContent = `₹${totalBalance.toLocaleString()}`;
+        if (monthlyIncomeEl) monthlyIncomeEl.textContent = `₹${totalIncome.toLocaleString()}`;
+        if (monthlyExpensesEl) monthlyExpensesEl.textContent = `₹${totalExpenses.toLocaleString()}`;
+        if (savingsRateEl) savingsRateEl.textContent = `${savingsRate}%`;
     }
     
     renderExpenseChart() {
@@ -286,7 +324,10 @@ class MoneyMentorApp {
         container.innerHTML = '';
         
         const unlockedCount = this.data.achievements.filter(a => a.unlocked).length;
-        document.getElementById('achievementScore').textContent = `${unlockedCount}/${this.data.achievements.length}`;
+        const achievementScore = document.getElementById('achievementScore');
+        if (achievementScore) {
+            achievementScore.textContent = `${unlockedCount}/${this.data.achievements.length}`;
+        }
         
         this.data.achievements.forEach(achievement => {
             const achievementElement = document.createElement('div');
@@ -306,18 +347,27 @@ class MoneyMentorApp {
         container.innerHTML = '';
         
         const categoryFilter = document.getElementById('categoryFilter');
-        const categories = [...new Set(this.data.transactions.map(t => t.category))];
-        categoryFilter.innerHTML = '<option value="all">All Categories</option>';
-        categories.forEach(cat => categoryFilter.innerHTML += `<option value="${cat}">${cat}</option>`);
+        if (categoryFilter) {
+            const categories = [...new Set(this.data.transactions.map(t => t.category))];
+            categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+            categories.forEach(cat => categoryFilter.innerHTML += `<option value="${cat}">${cat}</option>`);
+        }
         
         let filteredTransactions = [...this.data.transactions];
-        const typeFilter = document.getElementById('typeFilter').value;
-        const catFilter = document.getElementById('categoryFilter').value;
-        const dateFilter = document.getElementById('dateFilter').value;
         
-        if (typeFilter !== 'all') filteredTransactions = filteredTransactions.filter(t => t.type === typeFilter);
-        if (catFilter !== 'all') filteredTransactions = filteredTransactions.filter(t => t.category === catFilter);
-        if (dateFilter) filteredTransactions = filteredTransactions.filter(t => t.date === dateFilter);
+        const typeFilter = document.getElementById('typeFilter');
+        const catFilter = document.getElementById('categoryFilter');
+        const dateFilter = document.getElementById('dateFilter');
+        
+        if (typeFilter && typeFilter.value !== 'all') {
+            filteredTransactions = filteredTransactions.filter(t => t.type === typeFilter.value);
+        }
+        if (catFilter && catFilter.value !== 'all') {
+            filteredTransactions = filteredTransactions.filter(t => t.category === catFilter.value);
+        }
+        if (dateFilter && dateFilter.value) {
+            filteredTransactions = filteredTransactions.filter(t => t.date === dateFilter.value);
+        }
         
         filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
         
@@ -351,7 +401,10 @@ class MoneyMentorApp {
         });
         
         ['typeFilter', 'categoryFilter', 'dateFilter'].forEach(id => {
-            document.getElementById(id).addEventListener('change', () => this.renderTransactions());
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('change', () => this.renderTransactions());
+            }
         });
     }
     
@@ -368,6 +421,8 @@ class MoneyMentorApp {
     
     renderBudgets() {
         const container = document.getElementById('budget');
+        if (!container) return;
+        
         container.innerHTML = `
             <div class="budget__header">
                 <h2>Budget Overview</h2>
@@ -402,11 +457,16 @@ class MoneyMentorApp {
             budgetElement.querySelector('.delete-budget').onclick = () => this.deleteBudget(budget.name);
         });
         
-        document.getElementById('addBudgetBtn').addEventListener('click', () => this.showModal('budgetModal'));
+        const addBudgetBtn = document.getElementById('addBudgetBtn');
+        if (addBudgetBtn) {
+            addBudgetBtn.addEventListener('click', () => this.showModal('budgetModal'));
+        }
     }
     
     renderSubscriptions() {
         const container = document.getElementById('subscriptions');
+        if (!container) return;
+        
         container.innerHTML = `
             <div class="subscriptions__header">
                 <h2>Subscriptions</h2>
@@ -444,7 +504,10 @@ class MoneyMentorApp {
             });
         });
         
-        document.getElementById('addSubscriptionBtn').addEventListener('click', () => this.showModal('subscriptionModal'));
+        const addSubscriptionBtn = document.getElementById('addSubscriptionBtn');
+        if (addSubscriptionBtn) {
+            addSubscriptionBtn.addEventListener('click', () => this.showModal('subscriptionModal'));
+        }
     }
     
     renderInvestments() {
@@ -491,11 +554,20 @@ class MoneyMentorApp {
         });
         
         const returnPercent = totalInvested > 0 ? ((totalGain / totalInvested) * 100).toFixed(2) : 0;
-        document.getElementById('totalPortfolioValue').textContent = `₹${totalValue.toLocaleString()}`;
-        document.getElementById('totalGains').textContent = `₹${totalGain.toLocaleString()}`;
-        document.getElementById('totalGains').className = totalGain >= 0 ? 'positive' : 'negative';
-        document.getElementById('returnPercent').textContent = `${returnPercent}%`;
-        document.getElementById('returnPercent').className = totalGain >= 0 ? 'positive' : 'negative';
+        
+        const totalPortfolioValue = document.getElementById('totalPortfolioValue');
+        const totalGains = document.getElementById('totalGains');
+        const returnPercentEl = document.getElementById('returnPercent');
+        
+        if (totalPortfolioValue) totalPortfolioValue.textContent = `₹${totalValue.toLocaleString()}`;
+        if (totalGains) {
+            totalGains.textContent = `₹${totalGain.toLocaleString()}`;
+            totalGains.className = totalGain >= 0 ? 'positive' : 'negative';
+        }
+        if (returnPercentEl) {
+            returnPercentEl.textContent = `${returnPercent}%`;
+            returnPercentEl.className = totalGain >= 0 ? 'positive' : 'negative';
+        }
     }
     
     renderReports() {
@@ -503,7 +575,9 @@ class MoneyMentorApp {
         if (!ctx) return;
         if (this.charts.reportChart) this.charts.reportChart.destroy();
         
-        const period = document.getElementById('reportPeriod').value;
+        const reportPeriod = document.getElementById('reportPeriod');
+        const period = reportPeriod ? reportPeriod.value : 'monthly';
+        
         let labels = [];
         let incomeData = [];
         let expenseData = [];
@@ -539,7 +613,9 @@ class MoneyMentorApp {
             }
         });
         
-        document.getElementById('reportPeriod').addEventListener('change', () => this.renderReports());
+        if (reportPeriod) {
+            reportPeriod.addEventListener('change', () => this.renderReports());
+        }
     }
     
     handleTransactionSubmit(e) {
@@ -669,7 +745,7 @@ class MoneyMentorApp {
     }
     
     async fetchGeminiAIResponse(message) {
-        const API_KEY = 'AIzaSyBzYE95khwWrlXNIHQsNGA9xZDZQFykrYU';
+        const API_KEY = 'AIzaSyANEE80xhtVYnnZjASGfThI9mX9ytcUotY';
         const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
         
         try {
@@ -679,15 +755,21 @@ class MoneyMentorApp {
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: `You are a financial advisor AI assistant. User asks: "${message}". Provide helpful financial advice based on their MoneyMentor app data.`
+                            text: `You are a financial advisor AI assistant for MoneyMentor app. User asks: "${message}". Provide helpful, concise financial advice. Keep responses under 150 words.`
                         }]
                     }]
                 })
             });
             
             const data = await response.json();
-            return data.candidates?.[0]?.content?.parts?.?.text || 'Sorry, I could not process your request.';
+            
+            if (data.candidates && data.candidates[0] && data.candidates.content && data.candidates.content.parts && data.candidates.content.parts) {
+                return data.candidates.content.parts.text;
+            } else {
+                return this.getAIResponse(message);
+            }
         } catch (error) {
+            console.error('Gemini API Error:', error);
             return this.getAIResponse(message);
         }
     }
@@ -699,18 +781,22 @@ class MoneyMentorApp {
         } else if (lowerMessage.includes('save') || lowerMessage.includes('saving')) {
             return "Great question about savings! Start with an emergency fund covering 3-6 months of expenses. Your current savings rate looks good - keep it up!";
         } else if (lowerMessage.includes('invest')) {
-            return "For investment advice, consider starting with index funds or ETFs for diversification. Dollar-cost averaging is a great strategy!";
+            return "For investment advice, consider starting with index funds or ETFs for diversification. Dollar-cost averaging is a great strategy for beginners!";
         } else {
-            return "I'm here to help with your financial questions! Ask me about budgeting, saving strategies, investment advice, or goal planning.";
+            return "I'm here to help with your financial questions! Ask me about budgeting, saving strategies, investment advice, or goal planning. What would you like to know?";
         }
     }
     
     async sendChatMessage() {
         const input = document.getElementById('chatInput');
+        if (!input) return;
+        
         const message = input.value.trim();
         if (!message) return;
         
         const messagesContainer = document.getElementById('chatMessages');
+        if (!messagesContainer) return;
+        
         const userMessage = document.createElement('div');
         userMessage.className = 'message user-message';
         userMessage.innerHTML = `<div class="message__avatar">👤</div><div class="message__content"><p>${message}</p></div>`;
@@ -766,30 +852,43 @@ class MoneyMentorApp {
     }
     
     showModal(modalId) {
-        document.getElementById(modalId).classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
     }
     
     hideModal(modalId) {
-        document.getElementById(modalId).classList.add('hidden');
-        document.body.style.overflow = 'auto';
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
     }
     
     clearForm(formId) {
-        document.getElementById(formId).reset();
-        if (formId === 'transactionForm') {
-            document.getElementById('transactionDate').valueAsDate = new Date();
+        const form = document.getElementById(formId);
+        if (form) {
+            form.reset();
+            if (formId === 'transactionForm') {
+                const transactionDate = document.getElementById('transactionDate');
+                if (transactionDate) transactionDate.valueAsDate = new Date();
+            }
         }
     }
     
     showNotification(message, type = 'info') {
+        const notificationsContainer = document.getElementById('notifications');
+        if (!notificationsContainer) return;
+        
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.innerHTML = `
             <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
             <span>${message}</span>
         `;
-        document.getElementById('notifications').appendChild(notification);
+        notificationsContainer.appendChild(notification);
         setTimeout(() => notification.remove(), 4000);
     }
 }
