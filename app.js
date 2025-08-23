@@ -26,48 +26,151 @@ class MoneyMentorApp {
     loadSampleData() {
         const sampleData = {
             sampleTransactions: [
-                { id: "1", amount: 1250, category: "Salary", date: "2025-08-20", type: "income", description: "Part-time internship" },
-                { id: "2", amount: 45, category: "Food", date: "2025-08-20", type: "expense", description: "Lunch at cafeteria" },
-                { id: "3", amount: 899, category: "Subscription", date: "2025-08-19", type: "expense", description: "Netflix Premium" }
+                // Income transactions
+                { id: "1", amount: 25000, category: "Salary", date: "2025-08-01", type: "income", description: "Monthly salary" },
+                { id: "2", amount: 5000, category: "Freelance", date: "2025-08-05", type: "income", description: "Web design project" },
+                { id: "3", amount: 3000, category: "Freelance", date: "2025-08-15", type: "income", description: "Logo design work" },
+                { id: "4", amount: 1200, category: "Other", date: "2025-08-20", type: "income", description: "Cashback from credit card" },
+                
+                // Food expenses
+                { id: "5", amount: 150, category: "Food", date: "2025-08-23", type: "expense", description: "Groceries - Supermarket" },
+                { id: "6", amount: 80, category: "Food", date: "2025-08-22", type: "expense", description: "Dinner at restaurant" },
+                { id: "7", amount: 45, category: "Food", date: "2025-08-21", type: "expense", description: "Lunch delivery" },
+                { id: "8", amount: 120, category: "Food", date: "2025-08-20", type: "expense", description: "Weekly groceries" },
+                { id: "9", amount: 65, category: "Food", date: "2025-08-19", type: "expense", description: "Coffee and snacks" },
+                
+                // Transport expenses
+                { id: "10", amount: 200, category: "Transport", date: "2025-08-18", type: "expense", description: "Monthly bus pass" },
+                { id: "11", amount: 150, category: "Transport", date: "2025-08-16", type: "expense", description: "Uber rides" },
+                { id: "12", amount: 80, category: "Transport", date: "2025-08-14", type: "expense", description: "Metro card recharge" },
+                
+                // Entertainment expenses
+                { id: "13", amount: 500, category: "Entertainment", date: "2025-08-17", type: "expense", description: "Movie tickets with friends" },
+                { id: "14", amount: 300, category: "Entertainment", date: "2025-08-12", type: "expense", description: "Concert tickets" },
+                { id: "15", amount: 180, category: "Entertainment", date: "2025-08-10", type: "expense", description: "Gaming subscription" },
+                
+                // Shopping expenses
+                { id: "16", amount: 1200, category: "Shopping", date: "2025-08-13", type: "expense", description: "New clothes for work" },
+                { id: "17", amount: 800, category: "Shopping", date: "2025-08-08", type: "expense", description: "Electronics accessories" },
+                { id: "18", amount: 450, category: "Shopping", date: "2025-08-06", type: "expense", description: "Books and stationery" },
+                
+                // Bills and utilities
+                { id: "19", amount: 1500, category: "Bills", date: "2025-08-02", type: "expense", description: "Electricity bill" },
+                { id: "20", amount: 899, category: "Bills", date: "2025-08-03", type: "expense", description: "Internet bill" },
+                { id: "21", amount: 600, category: "Bills", date: "2025-08-04", type: "expense", description: "Mobile recharge" },
+                
+                // Healthcare
+                { id: "22", amount: 800, category: "Healthcare", date: "2025-08-09", type: "expense", description: "Doctor consultation" },
+                { id: "23", amount: 350, category: "Healthcare", date: "2025-08-11", type: "expense", description: "Medicines" },
+                
+                // Education
+                { id: "24", amount: 2500, category: "Education", date: "2025-08-07", type: "expense", description: "Online course subscription" },
+                { id: "25", amount: 150, category: "Education", date: "2025-08-14", type: "expense", description: "Study materials" }
             ],
+            
             budgetCategories: [
-                { name: "Food", limit: 200, spent: 145, color: "#ff6b6b" },
-                { name: "Transport", limit: 100, spent: 67, color: "#4ecdc4" },
-                { name: "Entertainment", limit: 150, spent: 89, color: "#45b7d1" },
-                { name: "Shopping", limit: 300, spent: 234, color: "#96ceb4" }
+                { name: "Food", limit: 3000, spent: 1460, color: "#ff6b6b" },
+                { name: "Transport", limit: 1500, spent: 830, color: "#4ecdc4" },
+                { name: "Entertainment", limit: 2000, spent: 1480, color: "#45b7d1" },
+                { name: "Shopping", limit: 4000, spent: 2450, color: "#96ceb4" },
+                { name: "Bills", limit: 3500, spent: 2999, color: "#feca57" },
+                { name: "Healthcare", limit: 2000, spent: 1150, color: "#ff9ff3" },
+                { name: "Education", limit: 5000, spent: 2650, color: "#54a0ff" }
             ],
+            
             savingsGoals: [
-                { name: "Emergency Fund", target: 5000, current: 1200, deadline: "2025-12-31" },
-                { name: "Laptop", target: 80000, current: 32000, deadline: "2025-10-15" },
-                { name: "Vacation", target: 25000, current: 8500, deadline: "2025-09-30" }
+                { name: "Emergency Fund", target: 50000, current: 18500, deadline: "2025-12-31" },
+                { name: "New Laptop", target: 80000, current: 45000, deadline: "2025-10-15" },
+                { name: "Vacation Trip", target: 35000, current: 12000, deadline: "2025-09-30" },
+                { name: "Investment Capital", target: 100000, current: 25000, deadline: "2026-03-15" },
+                { name: "Course Certification", target: 15000, current: 8500, deadline: "2025-11-20" }
             ],
+            
             subscriptions: [
-                { name: "Netflix", cost: 899, renewalDate: "2025-09-20", category: "Entertainment" },
-                { name: "Spotify", cost: 119, renewalDate: "2025-08-28", category: "Music" },
+                { name: "Netflix Premium", cost: 899, renewalDate: "2025-09-20", category: "Entertainment" },
+                { name: "Spotify Premium", cost: 119, renewalDate: "2025-08-28", category: "Music" },
                 { name: "Amazon Prime", cost: 329, renewalDate: "2025-09-15", category: "Shopping" },
-                { name: "Adobe Creative", cost: 1699, renewalDate: "2025-09-05", category: "Software" }
+                { name: "Adobe Creative Suite", cost: 1699, renewalDate: "2025-09-05", category: "Software" },
+                { name: "GitHub Pro", cost: 349, renewalDate: "2025-09-12", category: "Software" },
+                { name: "Canva Pro", cost: 399, renewalDate: "2025-10-01", category: "Software" },
+                { name: "YouTube Premium", cost: 129, renewalDate: "2025-09-08", category: "Entertainment" },
+                { name: "Microsoft 365", cost: 489, renewalDate: "2025-09-25", category: "Software" },
+                { name: "Gym Membership", cost: 1500, renewalDate: "2025-09-30", category: "Fitness" },
+                { name: "Coursera Plus", cost: 399, renewalDate: "2025-10-15", category: "Education" }
             ],
+            
             investments: [
-                { symbol: "AAPL", name: "Apple Inc", shares: 2, buyPrice: 150, currentPrice: 175 },
-                { symbol: "GOOGL", name: "Alphabet", shares: 1, buyPrice: 2800, currentPrice: 2950 },
-                { symbol: "BTC", name: "Bitcoin", shares: 0.1, buyPrice: 50000, currentPrice: 52000 }
+                { symbol: "RELIANCE", name: "Reliance Industries Ltd", shares: 15, buyPrice: 2400, currentPrice: 2580 },
+                { symbol: "TCS", name: "Tata Consultancy Services", shares: 8, buyPrice: 3200, currentPrice: 3450 },
+                { symbol: "INFY", name: "Infosys Limited", shares: 12, buyPrice: 1800, currentPrice: 1920 },
+                { symbol: "HDFC", name: "HDFC Bank Limited", shares: 10, buyPrice: 1650, currentPrice: 1720 },
+                { symbol: "ICICI", name: "ICICI Bank Limited", shares: 20, buyPrice: 850, currentPrice: 920 },
+                { symbol: "NIFTY50", name: "Nifty 50 ETF", shares: 50, buyPrice: 180, currentPrice: 195 },
+                { symbol: "GOLDBEES", name: "Gold ETF", shares: 25, buyPrice: 45, currentPrice: 48 },
+                { symbol: "SENSEX", name: "Sensex ETF", shares: 30, buyPrice: 420, currentPrice: 445 }
             ],
+            
+            loans: [
+                { 
+                    id: "1", 
+                    type: "Student Loan", 
+                    principal: 200000, 
+                    interest: 8.5, 
+                    emi: 2847, 
+                    remaining: 165000, 
+                    nextPayment: "2025-09-01",
+                    tenure: 84 
+                },
+                { 
+                    id: "2", 
+                    type: "Personal Loan", 
+                    principal: 50000, 
+                    interest: 12.0, 
+                    emi: 1567, 
+                    remaining: 38500, 
+                    nextPayment: "2025-09-05",
+                    tenure: 36 
+                }
+            ],
+            
             achievements: [
                 { name: "First Budget", description: "Created your first budget", unlocked: true, icon: "🎯" },
                 { name: "Savings Streak", description: "Saved money for 7 days straight", unlocked: true, icon: "🔥" },
-                { name: "Investment Starter", description: "Made your first investment", unlocked: false, icon: "📈" },
-                { name: "Debt Reducer", description: "Paid off 25% of debt", unlocked: false, icon: "💪" }
+                { name: "Investment Starter", description: "Made your first investment", unlocked: true, icon: "📈" },
+                { name: "Budget Master", description: "Stayed within budget for 3 months", unlocked: true, icon: "💰" },
+                { name: "Goal Achiever", description: "Completed your first savings goal", unlocked: true, icon: "🏆" },
+                { name: "Debt Reducer", description: "Paid off 25% of debt", unlocked: false, icon: "💪" },
+                { name: "Emergency Fund", description: "Built 6 months emergency fund", unlocked: false, icon: "🛡️" },
+                { name: "Investment Pro", description: "Portfolio worth ₹1,00,000+", unlocked: false, icon: "💎" },
+                { name: "Subscription Optimizer", description: "Cancelled 3+ unused subscriptions", unlocked: false, icon: "✂️" },
+                { name: "Financial Guru", description: "Maintained positive cash flow for 6 months", unlocked: false, icon: "🧙‍♂️" }
             ]
         };
+        
+        // Calculate actual spent amounts for budgets based on transactions
+        const expensesByCategory = {};
+        sampleData.sampleTransactions.filter(t => t.type === 'expense').forEach(t => {
+            expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + parseFloat(t.amount);
+        });
+        
+        // Update budget spent amounts
+        sampleData.budgetCategories.forEach(budget => {
+            if (expensesByCategory[budget.name]) {
+                budget.spent = expensesByCategory[budget.name];
+            }
+        });
         
         this.data.transactions = sampleData.sampleTransactions.map(t => ({ ...t, id: Date.now() + Math.random() }));
         this.data.budgets = sampleData.budgetCategories.map(b => ({ ...b }));
         this.data.goals = sampleData.savingsGoals.map(g => ({ ...g, id: Date.now() + Math.random() }));
         this.data.subscriptions = sampleData.subscriptions.map(s => ({ ...s, id: Date.now() + Math.random() }));
         this.data.investments = sampleData.investments.map(i => ({ ...i, id: Date.now() + Math.random() }));
+        this.data.loans = sampleData.loans;
         this.data.achievements = sampleData.achievements;
-        this.data.streak = { savingsDays: 5, budgetDays: 7 };
+        this.data.streak = { savingsDays: 12, budgetDays: 8 };
     }
+    
+    // ... rest of the code remains the same as in the previous version
     
     setupEventListeners() {
         document.getElementById('themeToggle').addEventListener('click', () => this.toggleTheme());
@@ -250,7 +353,7 @@ class MoneyMentorApp {
             expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + parseFloat(t.amount);
         });
         
-        const colors = ['#1FB8CD', '#FFC185', '#B4413C', '#ECEBD5', '#5D878F', '#DB4545'];
+        const colors = ['#1FB8CD', '#FFC185', '#B4413C', '#ECEBD5', '#5D878F', '#DB4545', '#feca57', '#ff9ff3'];
         this.charts.expenseChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -274,8 +377,12 @@ class MoneyMentorApp {
             const date = new Date();
             date.setDate(date.getDate() - i);
             days.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
-            incomeData.push(Math.random() * 1000 + 500);
-            expenseData.push(Math.random() * 800 + 200);
+            
+            // More realistic demo data
+            const baseIncome = 1000 + Math.random() * 2000;
+            const baseExpense = 800 + Math.random() * 1200;
+            incomeData.push(baseIncome);
+            expenseData.push(baseExpense);
         }
         
         this.charts.trendChart = new Chart(ctx, {
@@ -587,14 +694,14 @@ class MoneyMentorApp {
                 const date = new Date();
                 date.setDate(date.getDate() - i);
                 labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-                incomeData.push(Math.random() * 800 + 200);
-                expenseData.push(Math.random() * 600 + 100);
+                incomeData.push(800 + Math.random() * 1500);
+                expenseData.push(600 + Math.random() * 1000);
             }
         } else {
-            const months = ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const months = ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
             labels = months;
-            incomeData = [15000, 18000, 22000, 19000, 21000, 23000];
-            expenseData = [12000, 14000, 16000, 15000, 17000, 18000];
+            incomeData = [28000, 32000, 35000, 29000, 31000, 34200];
+            expenseData = [22000, 24000, 26000, 23000, 25000, 26500];
         }
         
         this.charts.reportChart = new Chart(ctx, {
