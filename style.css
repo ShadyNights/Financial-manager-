@@ -99,36 +99,6 @@
   --shadow-hover: 0 8px 25px -5px rgba(255, 255, 255, 0.1), 0 8px 10px -6px rgba(255, 255, 255, 0.1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: #000000;
-    --color-surface: #0a0a0a;
-    --color-card: #111111;
-    --color-text-primary: #F9FAFB;
-    --color-text-secondary: #6B7280;
-    --color-text-muted: #9CA3AF;
-    --color-primary: #3B82F6;
-    --color-primary-hover: #2563EB;
-    --color-primary-active: #1D4ED8;
-    --color-secondary: #C5A880;
-    --color-secondary-hover: #D4B890;
-    --color-secondary-active: #B8986B;
-    --color-success: #10B981;
-    --color-error: #EF4444;
-    --color-warning: #F59E0B;
-    --color-info: #3B82F6;
-    --color-border: #1F2937;
-    --color-border-light: #374151;
-    --color-focus: rgba(59, 130, 246, 0.5);
-    --color-overlay: rgba(0, 0, 0, 0.75);
-    --shadow-sm: 0 1px 2px 0 rgba(255, 255, 255, 0.05);
-    --shadow: 0 1px 3px 0 rgba(255, 255, 255, 0.05), 0 1px 2px -1px rgba(255, 255, 255, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(255, 255, 255, 0.05), 0 2px 4px -2px rgba(255, 255, 255, 0.05);
-    --shadow-lg: 0 10px 15px -3px rgba(255, 255, 255, 0.05), 0 4px 6px -4px rgba(255, 255, 255, 0.05);
-    --shadow-hover: 0 8px 25px -5px rgba(255, 255, 255, 0.1), 0 8px 10px -6px rgba(255, 255, 255, 0.1);
-  }
-}
-
 html {
   font-size: var(--font-size-base);
   font-family: var(--font-family-base);
