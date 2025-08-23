@@ -87,11 +87,11 @@ class GoalBasedStreakSystem {
     }
 
     saveStreakData() {
-        localStorage.setItem('moneymentor-streaks', JSON.stringify(this.streaks));
+        localStorage.setItem(`moneymentor-streaks-${this.app.currentUser.role}`, JSON.stringify(this.streaks));
     }
 
     loadStreakData() {
-        const saved = localStorage.getItem('moneymentor-streaks');
+        const saved = localStorage.getItem(`moneymentor-streaks-${this.app.currentUser.role}`);
         if (saved) {
             this.streaks = { ...this.streaks, ...JSON.parse(saved) };
         }
@@ -204,7 +204,7 @@ class AIScheduleGenerator {
             });
 
             const data = await response.json();
-            if (data.candidates && data.candidates[0] && data.candidates.content && data.candidates.content.parts && data.candidates.content.parts) {
+            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates.content.parts && data.candidates.content.parts) {
                 return data.candidates.content.parts.text;
             } else {
                 return this.generateFallbackPlan(userData);
@@ -222,7 +222,7 @@ class AIScheduleGenerator {
                 return {
                     name: parts[0].trim(),
                     amount: parseInt(parts[10].replace(/[₹,]/g, '')),
-                    deadline: parts[1].trim()
+                    deadline: parts[11].trim()
                 };
             }
             return null;
@@ -296,6 +296,7 @@ class AIScheduleGenerator {
             });
         });
 
+        this.app.saveAllData();
         this.app.showNotification('🚀 AI Plan saved! Your streak tracking begins now.', 'success');
     }
 
@@ -328,6 +329,7 @@ class AIScheduleGenerator {
 class MoneyMentorApp {
     constructor() {
         this.currentUser = { role: 'student', theme: 'light' };
+        this.loadUserSettings();
         this.data = {
             transactions: [],
             budgets: [],
@@ -346,101 +348,153 @@ class MoneyMentorApp {
     }
     
     init() {
-        this.loadSampleData();
+        this.loadAllData();
         this.setupEventListeners();
         this.setupTheme();
         this.renderDashboard();
         this.showTab('dashboard');
     }
-    
-    loadSampleData() {
-        const sampleData = {
-            sampleTransactions: [
-                { id: "1", amount: 25000, category: "Salary", date: "2025-08-01", type: "income", description: "Monthly salary" },
-                { id: "2", amount: 5000, category: "Freelance", date: "2025-08-05", type: "income", description: "Web design project" },
-                { id: "3", amount: 3000, category: "Freelance", date: "2025-08-15", type: "income", description: "Logo design work" },
-                { id: "4", amount: 1200, category: "Other", date: "2025-08-20", type: "income", description: "Cashback from credit card" },
-                { id: "5", amount: 150, category: "Food", date: "2025-08-23", type: "expense", description: "Groceries - Supermarket" },
-                { id: "6", amount: 80, category: "Food", date: "2025-08-22", type: "expense", description: "Dinner at restaurant" },
-                { id: "7", amount: 45, category: "Food", date: "2025-08-21", type: "expense", description: "Lunch delivery" },
-                { id: "8", amount: 120, category: "Food", date: "2025-08-20", type: "expense", description: "Weekly groceries" },
-                { id: "9", amount: 65, category: "Food", date: "2025-08-19", type: "expense", description: "Coffee and snacks" },
-                { id: "10", amount: 200, category: "Transport", date: "2025-08-18", type: "expense", description: "Monthly bus pass" },
-                { id: "11", amount: 150, category: "Transport", date: "2025-08-16", type: "expense", description: "Uber rides" },
-                { id: "12", amount: 80, category: "Transport", date: "2025-08-14", type: "expense", description: "Metro card recharge" },
-                { id: "13", amount: 500, category: "Entertainment", date: "2025-08-17", type: "expense", description: "Movie tickets with friends" },
-                { id: "14", amount: 300, category: "Entertainment", date: "2025-08-12", type: "expense", description: "Concert tickets" },
-                { id: "15", amount: 180, category: "Entertainment", date: "2025-08-10", type: "expense", description: "Gaming subscription" },
-                { id: "16", amount: 1200, category: "Shopping", date: "2025-08-13", type: "expense", description: "New clothes for work" },
-                { id: "17", amount: 800, category: "Shopping", date: "2025-08-08", type: "expense", description: "Electronics accessories" },
-                { id: "18", amount: 450, category: "Shopping", date: "2025-08-06", type: "expense", description: "Books and stationery" },
-                { id: "19", amount: 1500, category: "Bills", date: "2025-08-02", type: "expense", description: "Electricity bill" },
-                { id: "20", amount: 899, category: "Bills", date: "2025-08-03", type: "expense", description: "Internet bill" },
-                { id: "21", amount: 600, category: "Bills", date: "2025-08-04", type: "expense", description: "Mobile recharge" },
-                { id: "22", amount: 800, category: "Healthcare", date: "2025-08-09", type: "expense", description: "Doctor consultation" },
-                { id: "23", amount: 350, category: "Healthcare", date: "2025-08-11", type: "expense", description: "Medicines" },
-                { id: "24", amount: 2500, category: "Education", date: "2025-08-07", type: "expense", description: "Online course subscription" },
-                { id: "25", amount: 150, category: "Education", date: "2025-08-14", type: "expense", description: "Study materials" }
-            ],
-            budgetCategories: [
-                { name: "Food", limit: 3000, spent: 1460, color: "#ff6b6b" },
-                { name: "Transport", limit: 1500, spent: 830, color: "#4ecdc4" },
-                { name: "Entertainment", limit: 2000, spent: 1480, color: "#45b7d1" },
-                { name: "Shopping", limit: 4000, spent: 2450, color: "#96ceb4" },
-                { name: "Bills", limit: 3500, spent: 2999, color: "#feca57" },
-                { name: "Healthcare", limit: 2000, spent: 1150, color: "#ff9ff3" },
-                { name: "Education", limit: 5000, spent: 2650, color: "#54a0ff" }
-            ],
-            savingsGoals: [
-                { name: "Emergency Fund", target: 50000, current: 18500, deadline: "2025-12-31" },
-                { name: "New Laptop", target: 80000, current: 45000, deadline: "2025-10-15" },
-                { name: "Vacation Trip", target: 35000, current: 12000, deadline: "2025-09-30" },
-                { name: "Investment Capital", target: 100000, current: 25000, deadline: "2026-03-15" },
-                { name: "Course Certification", target: 15000, current: 8500, deadline: "2025-11-20" }
-            ],
-            subscriptions: [
-                { name: "Netflix Premium", cost: 899, renewalDate: "2025-09-20", category: "Entertainment" },
-                { name: "Spotify Premium", cost: 119, renewalDate: "2025-08-28", category: "Music" },
-                { name: "Amazon Prime", cost: 329, renewalDate: "2025-09-15", category: "Shopping" },
-                { name: "Adobe Creative Suite", cost: 1699, renewalDate: "2025-09-05", category: "Software" },
-                { name: "GitHub Pro", cost: 349, renewalDate: "2025-09-12", category: "Software" },
-                { name: "Canva Pro", cost: 399, renewalDate: "2025-10-01", category: "Software" },
-                { name: "YouTube Premium", cost: 129, renewalDate: "2025-09-08", category: "Entertainment" },
-                { name: "Microsoft 365", cost: 489, renewalDate: "2025-09-25", category: "Software" },
-                { name: "Gym Membership", cost: 1500, renewalDate: "2025-09-30", category: "Fitness" },
-                { name: "Coursera Plus", cost: 399, renewalDate: "2025-10-15", category: "Education" }
-            ],
-            investments: [
-                { symbol: "RELIANCE", name: "Reliance Industries Ltd", shares: 15, buyPrice: 2400, currentPrice: 2580 },
-                { symbol: "TCS", name: "Tata Consultancy Services", shares: 8, buyPrice: 3200, currentPrice: 3450 },
-                { symbol: "INFY", name: "Infosys Limited", shares: 12, buyPrice: 1800, currentPrice: 1920 },
-                { symbol: "HDFC", name: "HDFC Bank Limited", shares: 10, buyPrice: 1650, currentPrice: 1720 },
-                { symbol: "ICICI", name: "ICICI Bank Limited", shares: 20, buyPrice: 850, currentPrice: 920 },
-                { symbol: "NIFTY50", name: "Nifty 50 ETF", shares: 50, buyPrice: 180, currentPrice: 195 },
-                { symbol: "GOLDBEES", name: "Gold ETF", shares: 25, buyPrice: 45, currentPrice: 48 },
-                { symbol: "SENSEX", name: "Sensex ETF", shares: 30, buyPrice: 420, currentPrice: 445 }
-            ],
-            achievements: [
-                { name: "First Budget", description: "Created your first budget", unlocked: true, icon: "🎯" },
-                { name: "Savings Streak", description: "Saved money for 7 days straight", unlocked: true, icon: "🔥" },
-                { name: "Investment Starter", description: "Made your first investment", unlocked: true, icon: "📈" },
-                { name: "Budget Master", description: "Stayed within budget for 3 months", unlocked: true, icon: "💰" },
-                { name: "Goal Achiever", description: "Completed your first savings goal", unlocked: true, icon: "🏆" },
-                { name: "Debt Reducer", description: "Paid off 25% of debt", unlocked: false, icon: "💪" },
-                { name: "Emergency Fund", description: "Built 6 months emergency fund", unlocked: false, icon: "🛡️" },
-                { name: "Investment Pro", description: "Portfolio worth ₹1,00,000+", unlocked: false, icon: "💎" },
-                { name: "Subscription Optimizer", description: "Cancelled 3+ unused subscriptions", unlocked: false, icon: "✂️" },
-                { name: "Financial Guru", description: "Maintained positive cash flow for 6 months", unlocked: false, icon: "🧙‍♂️" }
-            ]
-        };
+
+    loadUserSettings() {
+        const savedRole = localStorage.getItem('moneymentor-role');
+        const savedTheme = localStorage.getItem('moneymentor-theme');
+        if (savedRole) this.currentUser.role = savedRole;
+        if (savedTheme) this.currentUser.theme = savedTheme;
+    }
+
+    saveUserSettings() {
+        localStorage.setItem('moneymentor-role', this.currentUser.role);
+        localStorage.setItem('moneymentor-theme', this.currentUser.theme);
+    }
+
+    loadAllData() {
+        const roleKey = this.currentUser.role;
+        const savedData = localStorage.getItem(`moneymentor-data-${roleKey}`);
         
-        this.data.transactions = sampleData.sampleTransactions.map(t => ({ ...t, id: Date.now() + Math.random() }));
-        this.data.budgets = sampleData.budgetCategories.map(b => ({ ...b }));
-        this.data.goals = sampleData.savingsGoals.map(g => ({ ...g, id: Date.now() + Math.random() }));
-        this.data.subscriptions = sampleData.subscriptions.map(s => ({ ...s, id: Date.now() + Math.random() }));
-        this.data.investments = sampleData.investments.map(i => ({ ...i, id: Date.now() + Math.random() }));
-        this.data.achievements = sampleData.achievements;
-        this.data.streak = { savingsDays: 12, budgetDays: 8 };
+        if (savedData) {
+            this.data = { ...this.data, ...JSON.parse(savedData) };
+        } else {
+            this.loadDefaultData();
+        }
+    }
+
+    saveAllData() {
+        const roleKey = this.currentUser.role;
+        localStorage.setItem(`moneymentor-data-${roleKey}`, JSON.stringify(this.data));
+    }
+
+    loadDefaultData() {
+        if (this.currentUser.role === 'student') {
+            const studentData = {
+                sampleTransactions: [
+                    { id: "1", amount: 5000, category: "Scholarship", date: "2025-08-01", type: "income", description: "Merit scholarship" },
+                    { id: "2", amount: 2000, category: "Freelance", date: "2025-08-05", type: "income", description: "Content writing" },
+                    { id: "3", amount: 1500, category: "Part-time", date: "2025-08-15", type: "income", description: "Campus job" },
+                    { id: "4", amount: 300, category: "Food", date: "2025-08-23", type: "expense", description: "Mess fees" },
+                    { id: "5", amount: 150, category: "Food", date: "2025-08-22", type: "expense", description: "Canteen snacks" },
+                    { id: "6", amount: 80, category: "Transport", date: "2025-08-21", type: "expense", description: "Bus fare" },
+                    { id: "7", amount: 200, category: "Books", date: "2025-08-20", type: "expense", description: "Course materials" },
+                    { id: "8", amount: 500, category: "Entertainment", date: "2025-08-19", type: "expense", description: "Movie with friends" },
+                    { id: "9", amount: 100, category: "Stationery", date: "2025-08-18", type: "expense", description: "Notebooks and pens" }
+                ],
+                budgetCategories: [
+                    { name: "Food", limit: 1500, spent: 450, color: "#ff6b6b" },
+                    { name: "Transport", limit: 500, spent: 280, color: "#4ecdc4" },
+                    { name: "Entertainment", limit: 800, spent: 500, color: "#45b7d1" },
+                    { name: "Books", limit: 1000, spent: 400, color: "#96ceb4" },
+                    { name: "Stationery", limit: 300, spent: 150, color: "#feca57" }
+                ],
+                savingsGoals: [
+                    { name: "Laptop for Studies", target: 40000, current: 15000, deadline: "2025-12-31" },
+                    { name: "Certification Course", target: 10000, current: 3500, deadline: "2025-10-15" },
+                    { name: "Emergency Fund", target: 25000, current: 8000, deadline: "2025-11-30" }
+                ],
+                subscriptions: [
+                    { name: "Netflix Student", cost: 149, renewalDate: "2025-09-20", category: "Entertainment" },
+                    { name: "Spotify Student", cost: 59, renewalDate: "2025-08-28", category: "Music" },
+                    { name: "Notion Pro", cost: 99, renewalDate: "2025-09-15", category: "Productivity" },
+                    { name: "Coursera Plus", cost: 399, renewalDate: "2025-10-01", category: "Education" }
+                ],
+                investments: [
+                    { symbol: "NIFTY50", name: "Nifty 50 ETF", shares: 10, buyPrice: 180, currentPrice: 195 },
+                    { symbol: "GOLDBEES", name: "Gold ETF", shares: 5, buyPrice: 45, currentPrice: 48 }
+                ],
+                achievements: [
+                    { name: "First Savings", description: "Saved your first ₹1000", unlocked: true, icon: "💰" },
+                    { name: "Budget Beginner", description: "Created your first budget", unlocked: true, icon: "🎯" },
+                    { name: "Study Smart", description: "Used education budget wisely", unlocked: true, icon: "📚" },
+                    { name: "Investment Starter", description: "Made your first investment", unlocked: false, icon: "📈" }
+                ]
+            };
+            
+            this.data.transactions = studentData.sampleTransactions.map(t => ({ ...t, id: Date.now() + Math.random() }));
+            this.data.budgets = studentData.budgetCategories;
+            this.data.goals = studentData.savingsGoals.map(g => ({ ...g, id: Date.now() + Math.random() }));
+            this.data.subscriptions = studentData.subscriptions.map(s => ({ ...s, id: Date.now() + Math.random() }));
+            this.data.investments = studentData.investments.map(i => ({ ...i, id: Date.now() + Math.random() }));
+            this.data.achievements = studentData.achievements;
+            this.data.streak = { savingsDays: 3, budgetDays: 5 };
+        } else {
+            const professionalData = {
+                sampleTransactions: [
+                    { id: "1", amount: 85000, category: "Salary", date: "2025-08-01", type: "income", description: "Monthly salary" },
+                    { id: "2", amount: 15000, category: "Freelance", date: "2025-08-05", type: "income", description: "Consulting project" },
+                    { id: "3", amount: 3000, category: "Investment", date: "2025-08-15", type: "income", description: "Dividend income" },
+                    { id: "4", amount: 25000, category: "Housing", date: "2025-08-02", type: "expense", description: "Monthly rent" },
+                    { id: "5", amount: 8000, category: "Food", date: "2025-08-22", type: "expense", description: "Groceries and dining" },
+                    { id: "6", amount: 3500, category: "Transport", date: "2025-08-21", type: "expense", description: "Car EMI" },
+                    { id: "7", amount: 5000, category: "Insurance", date: "2025-08-20", type: "expense", description: "Health & life insurance" },
+                    { id: "8", amount: 2000, category: "Entertainment", date: "2025-08-19", type: "expense", description: "Weekend activities" },
+                    { id: "9", amount: 1500, category: "Utilities", date: "2025-08-18", type: "expense", description: "Electricity & water" }
+                ],
+                budgetCategories: [
+                    { name: "Housing", limit: 30000, spent: 25000, color: "#ff6b6b" },
+                    { name: "Food", limit: 10000, spent: 8000, color: "#4ecdc4" },
+                    { name: "Transport", limit: 5000, spent: 3500, color: "#45b7d1" },
+                    { name: "Insurance", limit: 6000, spent: 5000, color: "#96ceb4" },
+                    { name: "Entertainment", limit: 4000, spent: 2000, color: "#feca57" },
+                    { name: "Utilities", limit: 2500, spent: 1500, color: "#ff9ff3" }
+                ],
+                savingsGoals: [
+                    { name: "House Down Payment", target: 500000, current: 125000, deadline: "2026-12-31" },
+                    { name: "Car Upgrade", target: 800000, current: 200000, deadline: "2025-10-15" },
+                    { name: "Emergency Fund", target: 300000, current: 85000, deadline: "2025-12-31" },
+                    { name: "Vacation Europe", target: 150000, current: 45000, deadline: "2025-09-30" }
+                ],
+                subscriptions: [
+                    { name: "Netflix Premium", cost: 899, renewalDate: "2025-09-20", category: "Entertainment" },
+                    { name: "Spotify Premium", cost: 119, renewalDate: "2025-08-28", category: "Music" },
+                    { name: "Amazon Prime", cost: 329, renewalDate: "2025-09-15", category: "Shopping" },
+                    { name: "Adobe Creative Suite", cost: 1699, renewalDate: "2025-09-05", category: "Software" },
+                    { name: "Microsoft 365", cost: 489, renewalDate: "2025-09-25", category: "Software" },
+                    { name: "Gym Premium", cost: 2500, renewalDate: "2025-09-30", category: "Fitness" }
+                ],
+                investments: [
+                    { symbol: "RELIANCE", name: "Reliance Industries", shares: 50, buyPrice: 2400, currentPrice: 2580 },
+                    { symbol: "TCS", name: "Tata Consultancy Services", shares: 25, buyPrice: 3200, currentPrice: 3450 },
+                    { symbol: "INFY", name: "Infosys Limited", shares: 30, buyPrice: 1800, currentPrice: 1920 },
+                    { symbol: "NIFTY50", name: "Nifty 50 ETF", shares: 100, buyPrice: 180, currentPrice: 195 },
+                    { symbol: "GOLDBEES", name: "Gold ETF", shares: 75, buyPrice: 45, currentPrice: 48 }
+                ],
+                achievements: [
+                    { name: "Salary Saver", description: "Saved 20% of salary", unlocked: true, icon: "💰" },
+                    { name: "Investment Pro", description: "Built diversified portfolio", unlocked: true, icon: "📈" },
+                    { name: "Budget Master", description: "Maintained budget for 6 months", unlocked: true, icon: "🎯" },
+                    { name: "Emergency Builder", description: "Built substantial emergency fund", unlocked: true, icon: "🛡️" },
+                    { name: "Goal Achiever", description: "Completed major financial goal", unlocked: false, icon: "🏆" }
+                ]
+            };
+            
+            this.data.transactions = professionalData.sampleTransactions.map(t => ({ ...t, id: Date.now() + Math.random() }));
+            this.data.budgets = professionalData.budgetCategories;
+            this.data.goals = professionalData.savingsGoals.map(g => ({ ...g, id: Date.now() + Math.random() }));
+            this.data.subscriptions = professionalData.subscriptions.map(s => ({ ...s, id: Date.now() + Math.random() }));
+            this.data.investments = professionalData.investments.map(i => ({ ...i, id: Date.now() + Math.random() }));
+            this.data.achievements = professionalData.achievements;
+            this.data.streak = { savingsDays: 15, budgetDays: 12 };
+        }
+        
+        this.saveAllData();
     }
     
     setupEventListeners() {
@@ -523,12 +577,10 @@ class MoneyMentorApp {
     }
     
     setupTheme() {
-        const savedTheme = localStorage.getItem('moneymentor-theme') || 'light';
-        this.currentUser.theme = savedTheme;
-        document.documentElement.setAttribute('data-color-scheme', savedTheme);
+        document.documentElement.setAttribute('data-color-scheme', this.currentUser.theme);
         const themeIcon = document.querySelector('#themeToggle i');
         if (themeIcon) {
-            themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            themeIcon.className = this.currentUser.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
         }
     }
     
@@ -536,7 +588,7 @@ class MoneyMentorApp {
         const newTheme = this.currentUser.theme === 'light' ? 'dark' : 'light';
         this.currentUser.theme = newTheme;
         document.documentElement.setAttribute('data-color-scheme', newTheme);
-        localStorage.setItem('moneymentor-theme', newTheme);
+        this.saveUserSettings();
         const themeIcon = document.querySelector('#themeToggle i');
         if (themeIcon) {
             themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
@@ -545,10 +597,29 @@ class MoneyMentorApp {
     }
     
     switchRole(role) {
+        this.saveAllData();
         this.currentUser.role = role;
+        this.saveUserSettings();
+        
+        this.data = {
+            transactions: [],
+            budgets: [],
+            goals: [],
+            subscriptions: [],
+            investments: [],
+            loans: [],
+            achievements: [],
+            streak: { savingsDays: 0, budgetDays: 0 },
+            aiGeneratedSchedule: []
+        };
+        
+        this.loadAllData();
+        this.streakSystem = new GoalBasedStreakSystem(this);
+        
         document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
         const roleBtn = document.getElementById(role + 'Role');
         if (roleBtn) roleBtn.classList.add('active');
+        
         this.renderDashboard();
         this.showNotification(`Switched to ${role} dashboard`, 'success');
     }
@@ -671,8 +742,8 @@ class MoneyMentorApp {
             const date = new Date();
             date.setDate(date.getDate() - i);
             days.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
-            const baseIncome = 1000 + Math.random() * 2000;
-            const baseExpense = 800 + Math.random() * 1200;
+            const baseIncome = this.currentUser.role === 'student' ? 500 + Math.random() * 1000 : 3000 + Math.random() * 5000;
+            const baseExpense = this.currentUser.role === 'student' ? 300 + Math.random() * 600 : 2000 + Math.random() * 3000;
             incomeData.push(baseIncome);
             expenseData.push(baseExpense);
         }
@@ -810,6 +881,7 @@ class MoneyMentorApp {
     deleteTransaction(id) {
         if (confirm('Are you sure you want to delete this transaction?')) {
             this.data.transactions = this.data.transactions.filter(t => t.id != id);
+            this.saveAllData();
             this.showNotification('Transaction removed', 'success');
             this.renderTransactions();
             if (document.getElementById('dashboard').classList.contains('active')) {
@@ -986,14 +1058,21 @@ class MoneyMentorApp {
                 const date = new Date();
                 date.setDate(date.getDate() - i);
                 labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-                incomeData.push(800 + Math.random() * 1500);
-                expenseData.push(600 + Math.random() * 1000);
+                const baseIncome = this.currentUser.role === 'student' ? 200 + Math.random() * 800 : 2000 + Math.random() * 3000;
+                const baseExpense = this.currentUser.role === 'student' ? 150 + Math.random() * 500 : 1500 + Math.random() * 2000;
+                incomeData.push(baseIncome);
+                expenseData.push(baseExpense);
             }
         } else {
             const months = ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
             labels = months;
-            incomeData = [28000, 32000, 35000, 29000, 31000, 34200];
-            expenseData = [22000, 24000, 26000, 23000, 25000, 26500];
+            if (this.currentUser.role === 'student') {
+                incomeData = [6000, 7500, 8000, 7200, 8500, 8500];
+                expenseData = [4500, 5200, 5800, 5000, 5600, 5800];
+            } else {
+                incomeData = [95000, 98000, 105000, 102000, 110000, 103000];
+                expenseData = [65000, 68000, 72000, 70000, 75000, 73000];
+            }
         }
         
         this.charts.reportChart = new Chart(ctx, {
@@ -1028,6 +1107,7 @@ class MoneyMentorApp {
             date: document.getElementById('transactionDate').value
         };
         this.data.transactions.push(transaction);
+        this.saveAllData();
         this.hideModal('transactionModal');
         this.clearForm('transactionForm');
         this.showNotification('Transaction added successfully!', 'success');
@@ -1058,6 +1138,7 @@ class MoneyMentorApp {
             color: '#4ecdc4'
         });
         
+        this.saveAllData();
         this.showNotification('Budget added successfully!', 'success');
         this.hideModal('budgetModal');
         this.clearForm('budgetForm');
@@ -1089,6 +1170,7 @@ class MoneyMentorApp {
             category: categoryField.value
         });
         
+        this.saveAllData();
         this.showNotification('Subscription added successfully!', 'success');
         this.hideModal('subscriptionModal');
         this.clearForm('subscriptionForm');
@@ -1105,6 +1187,7 @@ class MoneyMentorApp {
             deadline: document.getElementById('goalDeadline').value
         };
         this.data.goals.push(goal);
+        this.saveAllData();
         this.hideModal('goalModal');
         this.clearForm('goalForm');
         this.showNotification('Savings goal added successfully!', 'success');
@@ -1122,6 +1205,7 @@ class MoneyMentorApp {
             currentPrice: parseFloat(document.getElementById('investmentCurrentPrice').value)
         };
         this.data.investments.push(investment);
+        this.saveAllData();
         this.hideModal('investmentModal');
         this.clearForm('investmentForm');
         this.showNotification('Investment added successfully!', 'success');
@@ -1131,6 +1215,7 @@ class MoneyMentorApp {
     deleteBudget(name) {
         if (confirm('Are you sure you want to delete this budget?')) {
             this.data.budgets = this.data.budgets.filter(b => b.name !== name);
+            this.saveAllData();
             this.showNotification('Budget deleted!', 'success');
             this.renderBudgets();
         }
@@ -1139,6 +1224,7 @@ class MoneyMentorApp {
     deleteSubscription(id) {
         if (confirm('Are you sure you want to delete this subscription?')) {
             this.data.subscriptions = this.data.subscriptions.filter(s => String(s.id) !== String(id));
+            this.saveAllData();
             this.showNotification('Subscription deleted!', 'success');
             this.renderSubscriptions();
         }
@@ -1166,7 +1252,7 @@ class MoneyMentorApp {
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: `You are a financial advisor AI assistant for MoneyMentor app. User asks: "${message}". Provide helpful, concise financial advice. Keep responses under 150 words.`
+                            text: `You are a financial advisor AI assistant for MoneyMentor app. The user is a ${this.currentUser.role}. User asks: "${message}". Provide helpful, concise financial advice tailored to their role. Keep responses under 150 words.`
                         }]
                     }]
                 })
@@ -1174,7 +1260,7 @@ class MoneyMentorApp {
             
             const data = await response.json();
             
-            if (data.candidates && data.candidates[0] && data.candidates.content && data.candidates.content.parts && data.candidates.content.parts) {
+            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates.content.parts && data.candidates.content.parts) {
                 return data.candidates.content.parts.text;
             } else {
                 return this.getAIResponse(message);
@@ -1186,14 +1272,22 @@ class MoneyMentorApp {
     
     getAIResponse(message) {
         const lowerMessage = message.toLowerCase();
+        const rolePrefix = this.currentUser.role === 'student' ? 'As a student, ' : 'As a professional, ';
+        
         if (lowerMessage.includes('budget')) {
-            return "Based on your spending patterns, I recommend using the 50/30/20 rule: 50% for needs, 30% for wants, and 20% for savings. Consider meal planning to reduce food costs!";
+            return rolePrefix + (this.currentUser.role === 'student' ? 
+                "focus on the 70/20/10 rule: 70% for needs, 20% for wants, 10% for savings. Track meal expenses and find student discounts!" :
+                "I recommend the 50/30/20 rule: 50% needs, 30% wants, 20% savings. Consider automated investments and tax-saving options.");
         } else if (lowerMessage.includes('save') || lowerMessage.includes('saving')) {
-            return "Great question about savings! Start with an emergency fund covering 3-6 months of expenses. Your current savings rate looks good - keep it up!";
+            return rolePrefix + (this.currentUser.role === 'student' ?
+                "start with small amounts! Even ₹500/month builds habits. Use student savings accounts and look for scholarship opportunities." :
+                "aim for 6 months emergency fund first, then diversify into SIPs, PPF, and ELSS for tax benefits. Automate your savings!");
         } else if (lowerMessage.includes('invest')) {
-            return "For investment advice, consider starting with index funds or ETFs for diversification. Dollar-cost averaging is a great strategy for beginners!";
+            return rolePrefix + (this.currentUser.role === 'student' ?
+                "begin with low-cost mutual funds and SIPs. Start with ₹500/month in diversified equity funds. Learn before you invest!" :
+                "diversify across equity, debt, and international funds. Consider ELSS for tax savings and increase SIP amounts annually.");
         } else {
-            return "I'm here to help with your financial questions! Ask me about budgeting, saving strategies, investment advice, or goal planning. What would you like to know?";
+            return `I'm here to help with ${this.currentUser.role}-specific financial advice! Ask about budgeting, saving strategies, investments, or goal planning tailored to your situation.`;
         }
     }
     
