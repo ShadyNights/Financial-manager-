@@ -71,15 +71,323 @@
     </nav>
     <main class="main">
         <div class="container">
-            <div id="dashboard" class="tab-content active"></div>
-            <div id="transactions" class="tab-content"></div>
-            <div id="budget" class="tab-content"></div>
-            <div id="subscriptions" class="tab-content"></div>
-            <div id="investments" class="tab-content"></div>
-            <div id="reports" class="tab-content"></div>
-            <div id="ai-chat" class="tab-content"></div>
+            <div id="dashboard" class="tab-content active">
+                <div class="dashboard">
+                    <div class="dashboard__row">
+                        <div class="metric-card">
+                            <div class="metric-card__icon">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="metric-card__content">
+                                <h3>Total Balance</h3>
+                                <p class="metric-card__value" id="totalBalance">₹0</p>
+                                <span class="metric-card__change positive">+12.5%</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-card__icon">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="metric-card__content">
+                                <h3>Monthly Income</h3>
+                                <p class="metric-card__value" id="monthlyIncome">₹0</p>
+                                <span class="metric-card__change positive">+8.2%</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-card__icon">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="metric-card__content">
+                                <h3>Monthly Expenses</h3>
+                                <p class="metric-card__value" id="monthlyExpenses">₹0</p>
+                                <span class="metric-card__change negative">-3.4%</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-card__icon">
+                                <i class="fas fa-piggy-bank"></i>
+                            </div>
+                            <div class="metric-card__content">
+                                <h3>Savings Rate</h3>
+                                <p class="metric-card__value" id="savingsRate">0%</p>
+                                <span class="metric-card__change positive">+2.1%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard__row">
+                        <div class="chart-card">
+                            <div class="chart-card__header">
+                                <h3>Expense Breakdown</h3>
+                                <button class="btn btn--sm btn--outline">View All</button>
+                            </div>
+                            <div class="chart-container" style="position: relative; height: 300px;">
+                                <canvas id="expenseChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-card__header">
+                                <h3>Spending Trends</h3>
+                                <button class="btn btn--sm btn--outline">View All</button>
+                            </div>
+                            <div class="chart-container" style="position: relative; height: 300px;">
+                                <canvas id="trendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard__row">
+                        <div class="goals-card">
+                            <div class="goals-card__header">
+                                <h3>Savings Goals</h3>
+                                <button class="btn btn--sm btn--primary" id="addGoalBtn">Add Goal</button>
+                            </div>
+                            <div class="goals-list" id="goalsList"></div>
+                        </div>
+                        <div class="achievements-card">
+                            <div class="achievements-card__header">
+                                <h3>Achievements</h3>
+                                <span class="achievement-score" id="achievementScore">3/8</span>
+                            </div>
+                            <div class="achievements-grid" id="achievementsGrid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="transactions" class="tab-content">
+                <div class="transactions">
+                    <div class="transactions__header">
+                        <h2>Transactions</h2>
+                        <div class="transactions__actions">
+                            <button class="btn btn--outline" id="exportTransactions">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                            <button class="btn btn--primary" id="addTransactionBtn">
+                                <i class="fas fa-plus"></i> Add Transaction
+                            </button>
+                        </div>
+                    </div>
+                    <div class="transactions__filters">
+                        <select id="typeFilter" class="form-control">
+                            <option value="all">All Types</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                        <select id="categoryFilter" class="form-control">
+                            <option value="all">All Categories</option>
+                        </select>
+                        <input type="date" id="dateFilter" class="form-control">
+                    </div>
+                    <div class="transactions__list" id="transactionsList"></div>
+                </div>
+            </div>
+            <div id="budget" class="tab-content">
+                <div class="budget">
+                    <div class="budget__header">
+                        <h2>Budget Overview</h2>
+                        <button class="btn btn--primary" id="addBudgetBtn">
+                            <i class="fas fa-plus"></i> Add Budget
+                        </button>
+                    </div>
+                    <div class="budget__grid" id="budgetGrid"></div>
+                </div>
+            </div>
+            <div id="subscriptions" class="tab-content">
+                <div class="subscriptions">
+                    <div class="subscriptions__header">
+                        <h2>Subscriptions</h2>
+                        <button class="btn btn--primary" id="addSubscriptionBtn">
+                            <i class="fas fa-plus"></i> Add Subscription
+                        </button>
+                    </div>
+                    <div class="subscriptions__grid" id="subscriptionsGrid"></div>
+                </div>
+            </div>
+            <div id="investments" class="tab-content">
+                <div class="investments">
+                    <div class="investments__header">
+                        <h2>Investment Portfolio</h2>
+                        <button class="btn btn--primary" id="addInvestmentBtn">
+                            <i class="fas fa-plus"></i> Add Investment
+                        </button>
+                    </div>
+                    <div class="investments__summary">
+                        <div class="investment-summary-card">
+                            <h3>Total Value</h3>
+                            <p id="totalPortfolioValue">₹0</p>
+                        </div>
+                        <div class="investment-summary-card">
+                            <h3>Total Gains</h3>
+                            <p id="totalGains" class="positive">₹0</p>
+                        </div>
+                        <div class="investment-summary-card">
+                            <h3>Return %</h3>
+                            <p id="returnPercent" class="positive">0%</p>
+                        </div>
+                    </div>
+                    <div class="investments__list" id="investmentsList"></div>
+                </div>
+            </div>
+            <div id="reports" class="tab-content">
+                <div class="reports">
+                    <div class="reports__header">
+                        <h2>Financial Reports</h2>
+                        <div class="reports__controls">
+                            <select id="reportPeriod" class="form-control">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly" selected>Monthly</option>
+                            </select>
+                            <button class="btn btn--outline" id="exportReport">
+                                <i class="fas fa-download"></i> Export PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div class="reports__content">
+                        <div class="chart-container" style="position: relative; height: 400px;">
+                            <canvas id="reportChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="ai-chat" class="tab-content">
+                <div class="ai-chat">
+                    <div class="ai-chat__header">
+                        <h2>AI Financial Assistant</h2>
+                        <span class="ai-status">🤖 Online</span>
+                    </div>
+                    <div class="ai-chat__messages" id="chatMessages">
+                        <div class="message ai-message">
+                            <div class="message__avatar">🤖</div>
+                            <div class="message__content">
+                                <p>Hello! I'm your AI financial assistant. I can help you with budgeting advice, investment insights, and answer any financial questions you might have. How can I assist you today?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ai-chat__input">
+                        <input type="text" id="chatInput" placeholder="Ask me about your finances..." class="form-control">
+                        <button id="sendMessageBtn" class="btn btn--primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
+    <div id="transactionModal" class="modal hidden">
+        <div class="modal__overlay"></div>
+        <div class="modal__content">
+            <div class="modal__header">
+                <h3>Add Transaction</h3>
+                <button class="modal__close">&times;</button>
+            </div>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label class="form-label">Amount (₹)</label>
+                    <input type="number" id="transactionAmount" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Type</label>
+                    <select id="transactionType" class="form-control" required>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="transactionCategory" class="form-control" required>
+                        <option value="Salary">Salary</option>
+                        <option value="Freelance">Freelance</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Bills">Bills</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Education">Education</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <input type="text" id="transactionDescription" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" id="transactionDate" class="form-control" required>
+                </div>
+                <div class="modal__actions">
+                    <button type="button" class="btn btn--outline" id="cancelTransaction">Cancel</button>
+                    <button type="submit" class="btn btn--primary">Add Transaction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="goalModal" class="modal hidden">
+        <div class="modal__overlay"></div>
+        <div class="modal__content">
+            <div class="modal__header">
+                <h3>Add Savings Goal</h3>
+                <button class="modal__close">&times;</button>
+            </div>
+            <form id="goalForm">
+                <div class="form-group">
+                    <label class="form-label">Goal Name</label>
+                    <input type="text" id="goalName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Target Amount (₹)</label>
+                    <input type="number" id="goalTarget" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Current Amount (₹)</label>
+                    <input type="number" id="goalCurrent" class="form-control" value="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Deadline</label>
+                    <input type="date" id="goalDeadline" class="form-control" required>
+                </div>
+                <div class="modal__actions">
+                    <button type="button" class="btn btn--outline" id="cancelGoal">Cancel</button>
+                    <button type="submit" class="btn btn--primary">Add Goal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="investmentModal" class="modal hidden">
+        <div class="modal__overlay"></div>
+        <div class="modal__content">
+            <div class="modal__header">
+                <h3>Add Investment</h3>
+                <button class="modal__close">&times;</button>
+            </div>
+            <form id="investmentForm">
+                <div class="form-group">
+                    <label class="form-label">Symbol/Name</label>
+                    <input type="text" id="investmentSymbol" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="investmentName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Shares/Units</label>
+                    <input type="number" step="0.01" id="investmentShares" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Buy Price (₹)</label>
+                    <input type="number" step="0.01" id="investmentBuyPrice" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Current Price (₹)</label>
+                    <input type="number" step="0.01" id="investmentCurrentPrice" class="form-control" required>
+                </div>
+                <div class="modal__actions">
+                    <button type="button" class="btn btn--outline" id="cancelInvestment">Cancel</button>
+                    <button type="submit" class="btn btn--primary">Add Investment</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <div id="subscriptionModal" class="modal hidden">
         <div class="modal__overlay"></div>
         <div class="modal__content">
@@ -107,6 +415,9 @@
                         <option value="Music">Music</option>
                         <option value="Shopping">Shopping</option>
                         <option value="Software">Software</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Fitness">Fitness</option>
+                        <option value="Education">Education</option>
                         <option value="Other">Other</option>
                     </select>
                 </div>
@@ -127,10 +438,10 @@
             <form id="budgetForm">
                 <div class="form-group">
                     <label class="form-label">Category</label>
-                    <input type="text" id="budgetName" class="form-control" required>
+                    <input type="text" id="budgetName" class="form-control" placeholder="e.g. Food, Transport, Entertainment" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Limit (₹)</label>
+                    <label class="form-label">Monthly Limit (₹)</label>
                     <input type="number" id="budgetLimit" class="form-control" required>
                 </div>
                 <div class="modal__actions">
