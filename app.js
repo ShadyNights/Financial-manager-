@@ -669,7 +669,7 @@ class MoneyMentorApp {
     }
     
     async fetchGeminiAIResponse(message) {
-        const API_KEY = 'YOUR_GEMINI_API_KEY_HERE';
+        const API_KEY = 'AIzaSyBzYE95khwWrlXNIHQsNGA9xZDZQFykrYU';
         const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
         
         try {
