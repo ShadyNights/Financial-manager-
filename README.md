@@ -67,7 +67,7 @@
 
 ## 🚧 Project Status
 
-Money Mentor V1 is currently under active development.
+Money Mentor V1.
 
 **Current focus:**
 - Improving AI features
